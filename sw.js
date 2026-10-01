@@ -1,5 +1,5 @@
 /* Carnet de Fonte : fonctionne hors ligne une fois ouvert une première fois */
-const CACHE = 'cdf-v2-b3a3d5ed';
+const CACHE = 'cdf-v2-feb3e777';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/favicon-64.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

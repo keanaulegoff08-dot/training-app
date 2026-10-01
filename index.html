@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Carnet de Fonte</title>
 <meta name="description" content="Carnet de musculation : calendrier, programmes, bilans, notes et vidéos de technique.">
 <meta name="theme-color" content="#E6E9EC" media="(prefers-color-scheme: light)">
@@ -52,6 +52,8 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{background:var(--ground)}
+html{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,label,input,select,textarea{touch-action:manipulation}
 body{color:var(--ink);font:15px/1.5 var(--body);padding-inline:16px;padding-block:0 calc(var(--nav-h) + 40px);-webkit-tap-highlight-color:transparent}
 body.docked{padding-bottom:calc(var(--nav-h) + 120px)}
 .wrap{max-width:680px;margin:0 auto}
@@ -206,7 +208,7 @@ h3{font:800 20px/1.05 var(--display);text-transform:uppercase;letter-spacing:.01
 .sel-item{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
 .sel-item .ctl{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;grid-column:1/-1}
 .sel-item .note-f{grid-column:1/-1}
-.sel-item .ctl input,.sel-item .ctl select{height:38px;font-size:14px}
+.sel-item .ctl input,.sel-item .ctl select{height:40px;font-size:16px}
 .mini-btns{display:flex;gap:4px}
 .mini-btns button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:transparent;font-size:14px}
 
@@ -334,7 +336,7 @@ details summary{cursor:pointer;font-weight:600}
 /* v3 : notes, vidéos, fiche exercice */
 textarea{width:100%;min-height:44px;border:1px solid var(--line);background:var(--ground);border-radius:10px;padding:10px 11px;font:15px/1.45 var(--body);color:var(--ink);resize:vertical}
 textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 25%,transparent)}
-.sel-item textarea{min-height:38px;font-size:14px;padding:8px 10px}
+.sel-item textarea{min-height:40px;font-size:16px;padding:8px 10px}
 .vh{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;clip:rect(0 0 0 0)}
 .pastnotes{display:grid;gap:4px;border-left:2px solid var(--line);padding-left:10px}
 .pastnotes p{margin:0;font-size:13.5px;max-width:62ch}
@@ -392,6 +394,18 @@ body.modal-open{overflow:hidden}
 .gen-go{background:var(--k-perso);color:#fff}
 .gday h3 span{min-width:0}
 .freq.k-perso button[aria-pressed="true"]{border-color:var(--k-perso);box-shadow:inset 0 0 0 1.5px var(--k-perso)}
+/* v5 : périodisation */
+.ladder{width:100%;height:auto;display:block}
+.weekpill{display:inline-flex;gap:6px;align-items:center;margin-top:6px;font:600 11.5px var(--mono);padding:4px 8px;border-radius:6px;background:color-mix(in srgb,var(--kc,var(--accent)) 16%,var(--surface));color:var(--ink)}
+.weekpill.deload{background:var(--sunk);border:1px dashed var(--muted)}
+.weekpill.big{display:grid;gap:2px;padding:10px 12px;border-radius:10px;font:500 12px var(--body);margin-top:0}
+.weekpill.big b{font:900 26px/1 var(--display);text-transform:uppercase}
+.calc{display:flex;gap:10px;align-items:baseline;padding:10px 12px;border-radius:10px;background:color-mix(in srgb,var(--accent) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))}
+.calc b{font:900 26px/1 var(--display);white-space:nowrap}
+.calc span{font-size:12.5px;color:var(--muted);line-height:1.35}
+.seg.wide{display:grid;grid-template-columns:1fr 1fr;width:100%}
+.seg.wide button{padding:10px 6px}
+.customex summary{color:var(--accent)}
 @media (max-width:380px){.sel-item .ctl{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -400,8 +414,8 @@ html{-webkit-text-size-adjust:100%}
 :root{padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;overscroll-behavior-y:none}
 body::before{content:"";position:fixed;left:0;right:0;top:0;height:env(safe-area-inset-top,0px);background:var(--ground);z-index:21}
-input,select,textarea{font-size:16px}
-.cell input{font-size:20px}
+input,select,textarea{font-size:16px!important}
+.cell input{font-size:20px!important}
 </style>
 </head>
 <body>
@@ -610,16 +624,6 @@ const PROGRAMS = {
     }}
 };
 
-/* Périodisation : 6 semaines de progression + 1 décharge */
-const WEEKS = [
-  {n:'Calibrage', rpe:-1, pct:-.05},
-  {n:'Accumulation', rpe:-.5, pct:0},
-  {n:'Accumulation', rpe:0, pct:.025},
-  {n:'Intensification', rpe:.5, pct:.05, setsIso:1},
-  {n:'Intensification', rpe:.5, pct:.075, setsIso:1, repsPct:-1},
-  {n:'Pic', rpe:1, pct:.10, setsIso:1, repsPct:-1, setsPct:-1},
-  {n:'Décharge', rpe:-2, pct:-.15, sets:-1}
-];
 const DAY_PATTERNS = {3:[0,2,4], 4:[0,1,3,4], 5:[0,1,2,4,5]};
 
 /* Séance de la v1, gardée comme modèle */
@@ -657,6 +661,80 @@ const FIG_BACK = {
   adducteurs:[[[58,147],[55,149],[55,165],[58,159]]],
   mollets:[[[47,186],[40,188],[39,204],[42,221],[46,214],[49,202],[48,190]]]
 };
+
+/* ================= PÉRIODISATION PAR BLOCS =================
+   Un bloc = 3 semaines de difficulté croissante + 1 semaine de décharge.
+   Programme de 8 semaines = 2 blocs, 12 semaines = 3 blocs.
+   Chaque bloc démarre un cran plus haut que le précédent : la difficulté monte
+   d'une semaine à l'autre ET d'un bloc à l'autre. */
+const BLOCK_RPE = [[6, 7, 8], [7, 8, 9], [7.5, 8.5, 9]];
+const DELOAD = {rpe: 5, factor: .6, setsDrop: 1};
+const planWeeks = p => (p && p.weeks === 12) ? 12 : 8;
+function weekInfo(weeks, w) {
+  weeks = weeks === 12 ? 12 : 8;
+  const b = Math.floor(w / 4), i = w % 4, ladder = BLOCK_RPE[Math.min(b, BLOCK_RPE.length - 1)];
+  if (i === 3) return {w, b, i, weeks, deload: true, rpe: DELOAD.rpe, n: `Bloc ${b + 1} · décharge`, short: 'Décharge'};
+  return {w, b, i, weeks, deload: false, rpe: ladder[i], n: `Bloc ${b + 1} · semaine ${i + 1}`, short: `RPE ${fr(ladder[i])}`};
+}
+function scheduleOf(weeks) { const n = weeks === 12 ? 12 : 8; return Array.from({length: n}, (_, w) => weekInfo(n, w)); }
+
+/* Table RPE (reps × RPE → % du 1RM), d'après les tables utilisées en force athlétique.
+   n = reps + reps en réserve ; 1 rep à RPE 10 = 100 %. */
+const RPE_TABLE = [null, 1, .955, .922, .892, .863, .837, .811, .786, .762, .739, .707, .68];
+function pctRPE(reps, rpe) {
+  const n = Math.max(1, reps + (10 - (rpe || 8))), f = Math.floor(n), c = n - f;
+  const at = k => k <= 12 ? RPE_TABLE[Math.max(1, k)] : Math.max(.4, .68 - (k - 12) * .022);
+  return at(f) * (1 - c) + at(f + 1) * c;
+}
+const e1FromSet = (kg, reps, rpe) => { kg = num(kg); reps = num(reps); if (!kg || !reps) return null; return kg / pctRPE(reps, num(rpe) || 8); };
+/** 1RM estimé à partir des 3 dernières séances où l'exercice a été fait */
+function recentE1(exId, exceptId) {
+  let best = null, n = 0;
+  for (const s of sortedDone()) {
+    if (s.id === exceptId) continue;
+    let found = false;
+    for (const it of s.items) if (it.ex === exId) for (const x of it.sets) if (x.done) {
+      const e = e1FromSet(x.kg, x.reps, x.rpe || it.rpe);
+      if (e) { found = true; if (!best || e > best) best = e; }
+    }
+    if (found && ++n >= 3) break;
+  }
+  return best;
+}
+const loadStep = ex => ex.eq === 'halteres' ? 2 : 2.5;
+const roundLoad = (kg, ex) => Math.max(0, Math.round(kg / loadStep(ex)) * loadStep(ex));
+const repTarget = r => { const [lo, hi] = parseReps(r); return Math.round((lo + hi) / 2); };
+/** Charge visée : 1RM estimé × % donné par la table pour (reps, RPE de la semaine) */
+function targetLoad(it, session) {
+  const ex = getEx(it.ex), ref = ex.opt.ref;
+  let e1 = null, src = '';
+  const manual = ref && it.ex === ref ? num(DB.config.maxes && DB.config.maxes[ref]) : null;
+  if (manual) { e1 = manual; src = 'ton max'; }
+  if (!e1) { e1 = recentE1(it.ex, session && session.id); if (e1) src = 'tes dernières séances'; }
+  if (!e1 && ref) { const M = maxFor(ref); if (M) { e1 = it.ex === ref ? M : M * .9; src = it.ex === ref ? 'ton max estimé' : `ton max ${getEx(ref).name.toLowerCase()} −10 %`; } }
+  if (!e1) return null;
+  const reps = repTarget(it.reps);
+  const base = pctRPE(reps, it.deload ? 8 : (it.rpe || 8));
+  const pct = it.deload ? base * DELOAD.factor : base;
+  return {kg: roundLoad(e1 * pct, ex), e1, pct, reps, rpe: it.rpe, src, deload: !!it.deload};
+}
+
+/* Escalier de périodisation (SVG) : une marche par semaine, la décharge en creux */
+function blockLadderSVG(weeks, current = -1) {
+  const sch = scheduleOf(weeks), W = 320, H = 118, L = 4, R = 4, T = 18, B = 26;
+  const bw = (W - L - R) / sch.length, y = r => T + (9.5 - r) / (9.5 - 4.5) * (H - T - B);
+  let g = '';
+  sch.forEach((s, i) => {
+    const x = L + i * bw + 2, top = y(s.rpe), h = H - B - top, cur = i === current, past = current >= 0 && i < current;
+    const fill = s.deload ? 'var(--sunk)' : 'var(--kc, var(--accent))';
+    g += `<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${(bw - 4).toFixed(1)}" height="${h.toFixed(1)}" rx="3" fill="${fill}" fill-opacity="${s.deload ? 1 : past ? .35 : cur ? 1 : .75}" ${s.deload ? 'stroke="var(--muted)" stroke-dasharray="3 2"' : ''} ${cur ? 'stroke="var(--ink)" stroke-width="2"' : ''}><title>Semaine ${i + 1} · ${s.n} · ${s.deload ? 'charges à 60 %' : 'RPE ' + fr(s.rpe)}</title></rect>`;
+    g += `<text x="${(x + (bw - 4) / 2).toFixed(1)}" y="${(top - 4).toFixed(1)}" text-anchor="middle" font-size="9.5" font-family="Martian Mono,monospace" fill="var(--ink)">${s.deload ? '60%' : fr(s.rpe)}</text>`;
+    g += `<text x="${(x + (bw - 4) / 2).toFixed(1)}" y="${H - B + 12}" text-anchor="middle" font-size="9" font-family="Martian Mono,monospace" fill="${cur ? 'var(--ink)' : 'var(--muted)'}">S${i + 1}</text>`;
+    if (s.i === 0) g += `<text x="${x.toFixed(1)}" y="${H - 3}" font-size="9" font-family="Martian Mono,monospace" fill="var(--muted)">BLOC ${s.b + 1}</text>`;
+    if (s.i === 0 && i > 0) g += `<line x1="${(x - 2).toFixed(1)}" x2="${(x - 2).toFixed(1)}" y1="${T - 6}" y2="${H - 2}" stroke="var(--line)" stroke-dasharray="2 3"/>`;
+  });
+  return `<svg class="ladder" viewBox="0 0 ${W} ${H}" role="img" aria-label="Périodisation sur ${weeks} semaines : RPE par semaine et semaines de décharge">${g}</svg>`;
+}
 
 /* ================= OUTILS ================= */
 const $ = s => document.querySelector(s);
@@ -800,6 +878,10 @@ function verdict(it) {
 }
 function prefillKg(it, session) {
   const ex = getEx(it.ex);
+  if (it.rpe && it.m !== 'backoff') {
+    const t = targetLoad(it, session);
+    if (t && t.kg) { it.calc = t; return String(t.kg); }
+  }
   if (it.pct && ex.opt.ref) { const M = maxFor(ex.opt.ref); if (M) return String(r25(M * it.pct)); }
   const last = lastItem(it.ex, it.m === 'top', session && session.id);
   if (!last) return '';
@@ -813,27 +895,25 @@ function prefillKg(it, session) {
 }
 
 /* ================= PROGRAMMES & PLANNING ================= */
-function buildItems(defs, weekIdx, type) {
-  const w = weekIdx != null ? WEEKS[Math.min(weekIdx, WEEKS.length - 1)] : null;
+function buildItems(defs, weekIdx, type, weeks) {
+  const W = weekIdx != null ? weekInfo(weeks, weekIdx) : null;
   return defs.map(([ex, sets, reps, rpe, o = {}]) => {
-    let s = sets, r = reps, e = rpe, p = o.pct || null;
-    const kind = getEx(ex).kind;
-    if (w) {
-      e = Math.max(5, Math.min(o.m === 'top' ? 9.5 : 10, rpe + w.rpe));
-      if (p) { p = +(p + w.pct).toFixed(3); if (w.repsPct && /^\d+$/.test(r)) r = String(Math.max(1, +r + w.repsPct)); if (w.setsPct) s = Math.max(2, s + w.setsPct); }
-      if (w.setsIso && kind === 'iso' && type !== 'force') s += w.setsIso;
-      if (w.sets && o.m !== 'top') s = Math.max(1, s + w.sets);
+    let s = sets, e = rpe, p = o.pct || null;
+    if (W) {
+      p = null;
+      if (W.deload) { e = DELOAD.rpe; s = Math.max(1, s - DELOAD.setsDrop); }
+      else e = o.m === 'top' ? Math.min(9, W.rpe + 1) : W.rpe;
     }
-    return {u: uid(), ex, reps: r, rpe: e, m: o.m || null, pct: p, sets: Array.from({length: s}, () => ({kg: '', reps: '', rpe: '', done: false}))};
+    return {u: uid(), ex, reps, rpe: e, m: o.m || null, pct: p, deload: !!(W && W.deload), sets: Array.from({length: s}, () => ({kg: '', reps: '', rpe: '', done: false}))};
   });
 }
 function fillKgs(session) { for (const it of session.items) { const kg = prefillKg(it, session); it.sets.forEach(x => { if (!x.done && !x.kg) x.kg = kg; }); } }
 function planEntry(p, orig) {
-  const d = diffDays(p.start, orig); if (d < 0 || d >= 49) return null;
+  const d = diffDays(p.start, orig); if (d < 0 || d >= planWeeks(p) * 7) return null;
   const k = p.days.indexOf(dow(orig)); if (k < 0) return null;
   const prog = getProg(p.type); if (!prog || !prog.variants[p.freq]) return null;
   const v = prog.variants[p.freq], day = v.days[k % v.days.length];
-  return {key: `${orig}#${k}`, orig, type: p.type, freq: p.freq, k: k % v.days.length, week: Math.floor(d / 7), name: day.n, day, date: orig};
+  return {key: `${orig}#${k}`, orig, type: p.type, freq: p.freq, k: k % v.days.length, week: Math.floor(d / 7), weeks: planWeeks(p), name: day.n, day, date: orig};
 }
 function plannedFor(date) {
   const p = DB.config.plan; if (!p) return [];
@@ -849,7 +929,7 @@ function plannedFor(date) {
 function planRemaining() {
   const p = DB.config.plan; if (!p) return [];
   const out = [], seen = new Set();
-  for (let i = 0; i < 49; i++) for (const x of plannedFor(addDays(p.start, i))) { out.push(x); seen.add(x.key); }
+  for (let i = 0; i < planWeeks(p) * 7; i++) for (const x of plannedFor(addDays(p.start, i))) { out.push(x); seen.add(x.key); }
   for (const key in (p.moves || {})) if (!seen.has(key)) for (const x of plannedFor(p.moves[key])) if (!seen.has(x.key)) { out.push(x); seen.add(x.key); }
   return out;
 }
@@ -857,11 +937,11 @@ function belongsToPlan(s, p) {
   if (!p || !s.planKey || !s.plan) return false;
   if (s.plan.pid || p.id) return s.plan.pid === p.id;
   const orig = s.planKey.split('#')[0], d = diffDays(p.start, orig);
-  return s.plan.type === p.type && d >= 0 && d < 49;
+  return s.plan.type === p.type && d >= 0 && d < planWeeks(p) * 7;
 }
 function sessionFromPlan(pl) {
   const s = {id: 'p' + uid(), date: pl.date, title: pl.name, kind: kindOf(pl.type), planKey: pl.key,
-    plan: {type: pl.type, freq: pl.freq, k: pl.k, week: pl.week, pid: DB.config.plan && DB.config.plan.id}, status: 'active', items: buildItems(pl.day.items, pl.week, pl.type), createdAt: Date.now()};
+    plan: {type: pl.type, freq: pl.freq, k: pl.k, week: pl.week, weeks: pl.weeks, pid: DB.config.plan && DB.config.plan.id}, status: 'active', items: buildItems(pl.day.items, pl.week, pl.type, pl.weeks), createdAt: Date.now()};
   fillKgs(s); s.open = s.items[0] && s.items[0].u; return s;
 }
 function sessionsOn(date) { return allSessions().filter(s => s.date === date).sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0)); }
@@ -1070,10 +1150,10 @@ function genProgram(cfg) {
       const mainEx = getEx(slot.main), ref = mainEx.opt.ref, M = ref ? maxFor(ref) : null;
       if (slot.role === 'faible') {
         const v = variationOf(slot.main, weak[slot.main] || 'bas');
-        put(v, 4, '5', 7, M && getEx(v).opt.ref ? {pct: .72} : {});
+        put(v, 4, '5', 7, {});
         if (v !== slot.main) put(slot.main, 3, '5', 7.5, {});
       } else {
-        put(slot.main, R.sets, R.reps, R.rpe, M ? {pct: R.pct} : {});
+        put(slot.main, R.sets, R.reps, R.rpe, {});
       }
     }
     // accessoires : muscle le plus en déficit, un exercice par muscle et par séance
@@ -1149,7 +1229,7 @@ function genProgram(cfg) {
   const idx = {};
   days.forEach(d => { if (seen[d.n] > 1) { idx[d.n] = (idx[d.n] || 0) + 1; d.n += ' ' + 'ABCDE'[idx[d.n] - 1]; } });
   return {
-    id: cfg.id || uid(), name: cfg.name || autoName(goals, mains), freq, goals, exs: chosen, seed: cfg.seed || 1,
+    id: cfg.id || uid(), name: cfg.name || autoName(goals, mains), freq, weeks: cfg.weeks === 12 ? 12 : 8, goals, exs: chosen, seed: cfg.seed || 1,
     days, created: cfg.created || Date.now(), why: genWhy(goals, mains, weak, days, freq, balanced)
   };
 }
@@ -1176,7 +1256,7 @@ function genWhy(goals, mains, weak, days, freq, balanced = []) {
   for (const g of goals) if (g.t === 'weak') parts.push(WEAKNESS[g.w || 'bas'].d);
   const GL = {legs: 'jambes', pull: 'dos', push: 'poussée'};
   if (balanced.length) parts.push(`${[...new Set(balanced)].map(g => GL[g]).join(' et ').replace(/^./, c => c.toUpperCase())} : pas dans tes objectifs, mais j’ai gardé un minimum de volume pour rester équilibré.`);
-  parts.push('Comme pour les autres programmes, l’effort monte sur 6 semaines puis une semaine de décharge.');
+  parts.push('Périodisation par blocs : 3 semaines où le RPE monte d’un cran chaque semaine, puis une semaine de décharge à 60 %. Les charges se calculent toutes seules à partir de ton 1RM estimé.');
   return parts.join(' ');
 }
 /** transforme un programme perso en objet compatible avec le reste de l’app */
@@ -1184,6 +1264,7 @@ function customAsProgram(p) {
   return {name: p.name, short: 'Perso', color: 'perso', custom: true, why: p.why,
     variants: {[p.freq]: {split: `${p.freq} séances · ${p.days.map(d => d.n).join(' · ')}`, why: p.why, days: p.days}}};
 }
+function getProgRaw(type) { return type && type.startsWith('perso:') ? myPrograms().find(x => x.id === type.slice(6)) || null : null; }
 function myPrograms() { return DB.config.myPrograms || (DB.config.myPrograms = []); }
 function getProg(type) {
   if (type && type.startsWith('perso:')) { const p = myPrograms().find(x => x.id === type.slice(6)); return p ? customAsProgram(p) : null; }
@@ -1506,11 +1587,12 @@ function viewHome() {
   let planCard = '';
   if (p) {
     const prog = getProg(p.type) || {name: 'Programme supprimé', variants: {[p.freq]: {split: '', days: []}}}, v = prog.variants[p.freq], dd = diffDays(p.start, t), wi = Math.floor(dd / 7);
-    const status = dd < 0 ? `Commence le ${longDate(p.start)}` : wi >= 7 ? 'Bloc terminé : relance un nouveau bloc' : `Semaine ${wi + 1}/7 · ${WEEKS[wi].n}`;
+    const nW = planWeeks(p), wk = dd >= 0 && wi < nW ? weekInfo(nW, wi) : null;
+    const status = dd < 0 ? `Commence le ${longDate(p.start)}` : wi >= nW ? 'Programme terminé : relance-le ou crée le suivant' : `Semaine ${wi + 1}/${nW} · ${wk.n} · ${wk.deload ? 'décharge, charges à 60 %' : 'RPE ' + fr(wk.rpe)}`;
     let next = null; for (let i = 0; i < 60 && !next; i++) { const d = addDays(t, i); const pl = plannedFor(d); if (pl.length) next = pl[0]; }
     planCard = `<div class="card edge k-${kindOf(p.type)}">
       <div class="card-top"><div class="grow"><div class="lbl">Programme en cours</div><h3>${prog.name} · ${p.freq} j/sem</h3><div class="meta">${v.split} · ${status}</div></div></div>
-      <div class="weekbar">${WEEKS.map((w, i) => `<i class="${i < wi ? 'past' : i === wi ? 'now' : ''}" title="S${i + 1} ${w.n}"></i>`).join('')}</div>
+      ${blockLadderSVG(nW, dd >= 0 ? wi : -1)}
       ${next ? `<div class="row"><span class="grow">Prochaine : <b>${esc(next.name)}</b> <span class="muted">· ${next.date === t ? 'aujourd’hui' : longDate(next.date)}</span></span><button class="btn sm" data-start-plan="${next.key}" data-date="${next.date}" ${next.date === t ? '' : 'data-peek'}>${next.date === t ? 'Commencer' : 'Voir'}</button></div>` : ''}
       <div class="row"><button class="btn sm ghost" data-go="programs">Voir le programme</button><span class="grow"></span><button class="btn sm danger" data-plan-cancel>Annuler le programme</button></div>
     </div>`;
@@ -1557,10 +1639,10 @@ function dayPanel(date) {
       <div class="row">${btn}${s.status !== 'done' ? `<button class="btn sm ghost" data-move-session="${s.id}">Déplacer</button>` : ''}<span class="grow"></span><button class="btn sm danger" data-del="${s.id}">Supprimer</button></div></div>`);
   }
   for (const pl of inf.pl) {
-    const items = buildItems(pl.day.items, pl.week, pl.type);
+    const items = buildItems(pl.day.items, pl.week, pl.type, pl.weeks), wk = weekInfo(pl.weeks, pl.week);
     cards.push(`<div class="card edge k-${kindOf(pl.type)}" style="border-style:dashed">
-      <div class="card-top"><div class="grow"><span class="kind k-${kindOf(pl.type)}">${getProg(pl.type).name} · semaine ${pl.week + 1} · ${WEEKS[pl.week].n}</span><h3 style="margin-top:4px">${esc(pl.name)}</h3></div></div>
-      <ul class="exlist">${items.map(it => `<li><span>${esc(getEx(it.ex).name)}${it.m ? `<span class="mtag ${it.m === 'top' ? 'top' : ''}">${METHODS[it.m].l}</span>` : ''}</span><span>${it.sets.length} × ${esc(it.reps)} ${it.pct ? '· ' + fr(it.pct * 100) + ' %' : '· RPE ' + fr(it.rpe)}</span></li>`).join('')}</ul>
+      <div class="card-top"><div class="grow"><span class="kind k-${kindOf(pl.type)}">${esc(getProg(pl.type).name)} · semaine ${pl.week + 1}/${pl.weeks}</span><h3 style="margin-top:4px">${esc(pl.name)}</h3><div class="weekpill ${wk.deload ? 'deload' : ''}">${wk.n} · ${wk.deload ? 'décharge : charges à 60 %, une série en moins' : 'RPE ' + fr(wk.rpe)}</div></div></div>
+      <ul class="exlist">${items.map(it => { const tl = targetLoad(it); return `<li><span>${esc(getEx(it.ex).name)}${it.m ? `<span class="mtag ${it.m === 'top' ? 'top' : ''}">${METHODS[it.m].l}</span>` : ''}</span><span>${it.sets.length} × ${esc(it.reps)}${tl && tl.kg ? ' · ' + fr(tl.kg, 2) + ' kg' : ''} · RPE ${fr(it.rpe)}</span></li>`; }).join('')}</ul>
       ${pl.moved ? `<p class="meta" style="margin:0">Déplacée depuis le ${longDate(pl.orig)}</p>` : ''}
       <button class="btn" data-start-plan="${pl.key}" data-date="${pl.date}">${date < t ? 'Faire cette séance quand même' : 'Commencer cette séance'}</button>
       <div class="two"><button class="btn ghost" data-move-plan="${pl.key}" data-date="${pl.date}">Déplacer</button><button class="btn danger" data-skip-plan="${pl.key}">Retirer ce jour</button></div></div>`);
@@ -1584,7 +1666,7 @@ function viewPrograms() {
   const isActive = p && p.type === type && p.freq === freq;
   const t = TODAY(), nextMon = dow(t) === 0 ? t : addDays(mondayOf(t), 7);
   if (!V.pstart || V.pstartKey !== type + freq) { V.pstart = isActive ? p.start : nextMon; V.pdays = isActive ? p.days.slice() : DAY_PATTERNS[freq].slice(); V.pstartKey = type + freq; }
-  const weekRows = WEEKS.map((w, i) => `<li><span>S${i + 1} · ${w.n}</span><span>RPE ${w.rpe >= 0 ? '+' : '−'}${fr(Math.abs(w.rpe))}${type === 'force' || custom ? ` · charges en % ${w.pct >= 0 ? '+' : '−'}${fr(Math.abs(w.pct * 100))} %` : ''}${w.setsIso && type !== 'force' ? ' · +1 série isolation' : ''}${w.sets ? ' · −1 série' : ''}</span></li>`).join('');
+  if (!V.pweeks || V.pweeksKey !== type) { V.pweeks = isActive ? planWeeks(p) : (custom && getProgRaw(type) && getProgRaw(type).weeks) || 8; V.pweeksKey = type; }
   const pp = p ? getProg(p.type) : null;
   $('#app').innerHTML = `
     ${p && pp ? `<div class="card edge k-${kindOf(p.type)}" style="margin-top:16px"><div class="row"><div class="grow"><div class="lbl">Programme en cours</div><h3>${esc(pp.name)} · ${p.freq} j/sem</h3><div class="meta">Depuis le ${longDate(p.start)} · ${planRemaining().length} séances restantes</div></div></div><button class="btn danger" data-plan-cancel>Annuler ce programme</button></div>` : ''}
@@ -1615,19 +1697,20 @@ function viewPrograms() {
     <section class="sec k-${kc}">
       <h2>Les ${freq} séances</h2>
       ${v.days.map((d, i) => `<div class="card daycard"><h3>${esc(d.n)}<small>J${i + 1} · ${d.items.reduce((a, x) => a + x[1], 0)} séries</small></h3>
-        <ul class="exlist">${d.items.map(([ex, s, r, rpe, o = {}]) => { const e = getEx(ex); return `<li><span>${esc(e.name)}${o.m ? `<span class="mtag ${o.m === 'top' ? 'top' : ''}">${METHODS[o.m].l}</span>` : ''}<br><span class="meta">${MUSCLES[e.mu].l}</span></span><span>${s} × ${r} · ${o.pct ? fr(o.pct * 100) + ' %' : 'RPE ' + fr(rpe)}</span></li>`; }).join('')}</ul></div>`).join('')}
+        <ul class="exlist">${d.items.map(([ex, s, r, rpe, o = {}]) => { const e = getEx(ex); return `<li><span>${esc(e.name)}${o.m ? `<span class="mtag ${o.m === 'top' ? 'top' : ''}">${METHODS[o.m].l}</span>` : ''}<br><span class="meta">${MUSCLES[e.mu].l}</span></span><span>${s} × ${r}</span></li>`; }).join('')}</ul></div>`).join('')}
       ${custom ? `<button class="btn ghost" data-gen-edit="${type.slice(6)}">Modifier ce programme</button>` : ''}
       <details class="card"><summary>Les méthodes utilisées</summary><ul class="exlist" style="margin-top:8px">${Object.values(METHODS).map(m => `<li style="display:block"><b>${m.l}</b> — ${m.d}</li>`).join('')}</ul></details>
-      <div class="card"><h3>Progression sur 7 semaines</h3><p class="muted" style="margin:0;font-size:13.5px">L’effort monte par paliers, puis une semaine de décharge laisse la fatigue retomber pour que la progression apparaisse.</p><ul class="exlist wrap">${weekRows}</ul></div>
+      ${periodCard(V.pweeks)}
     </section>
     <section class="sec k-${kc}">
       <h2>${isActive ? 'Programme actif' : 'Suivre ce programme'}</h2>
       <div class="card lift">
-        <div class="field"><label class="lbl" for="pstart">Début du bloc</label><input type="date" id="pstart" value="${V.pstart}"></div>
+        <div class="field"><span class="lbl">Durée</span><div class="seg wide">${[8, 12].map(n => `<button data-pweeks="${n}" aria-pressed="${V.pweeks === n}">${n} semaines · ${n / 4} blocs</button>`).join('')}</div></div>
+        <div class="field"><label class="lbl" for="pstart">Début du programme</label><input type="date" id="pstart" value="${V.pstart}"></div>
         <div class="field"><span class="lbl">Jours d’entraînement (${freq})</span>
           <div class="daypick">${DOWS.map((d, i) => `<button data-pday="${i}" aria-pressed="${V.pdays.includes(i)}">${d}</button>`).join('')}</div></div>
         <p class="meta" id="pmsg" style="margin:0">${V.pdays.length === freq ? `Séances : ${V.pdays.map((d, i) => `${DOWS[d]} ${esc(v.days[i % v.days.length].n)}`).join(' · ')}` : `Choisis exactement ${freq} jours (${V.pdays.length} sélectionnés).`}</p>
-        <button class="btn wide" data-plan-go data-type="${type}" data-freq="${freq}" ${V.pdays.length === freq ? '' : 'disabled'}>${isActive ? 'Mettre à jour le programme' : p ? 'Remplacer le programme actuel' : 'Lancer le programme'}</button>
+        <button class="btn wide" data-plan-go data-type="${type}" data-freq="${freq}" data-weeks="${V.pweeks}" ${V.pdays.length === freq ? '' : 'disabled'}>${isActive ? 'Mettre à jour le programme' : p ? 'Remplacer le programme actuel' : 'Lancer le programme'}</button>
       </div>
     </section>`;
 }
@@ -1673,6 +1756,7 @@ function viewGen() {
       ${G.exs.length ? `<div class="goalchips">${G.exs.map(id => `<button class="chip-btn" data-gpick="${id}" aria-label="Retirer ${esc(getEx(id).name)}">${esc(getEx(id).name)} ✕</button>`).join('')}</div>` : ''}
       <div class="field"><label class="lbl" for="gq">Chercher</label><input id="gq" class="input" type="search" value="${esc(G.gq || '')}" placeholder="Ex. spoto, T-bar, curl" autocomplete="off"></div>
       <div class="pick-list" id="gpicklist" style="max-height:260px">${gPickHTML()}</div>
+      ${customFormHTML('gx', 'data-gx-add', 'Créer et ajouter au programme', G.gq)}
     </section>
     <section class="sec"><button class="btn wide gen-go" data-gen-go ${G.goals.some(g => g.t) ? '' : 'disabled'}>${P ? 'Recréer avec ces réglages' : 'Construire mon programme'}</button></section>
     ${P ? genPreviewHTML(P) : ''}`;
@@ -1684,14 +1768,15 @@ function genPreviewHTML(P) {
     <div class="eyebrow">Proposition</div>
     <div class="field"><label class="lbl" for="gname">Nom du programme</label><input id="gname" class="input" value="${esc(P.name)}"></div>
     <p class="why k-perso">${esc(P.why)}</p>
+    <div class="field"><span class="lbl">Durée conseillée</span><div class="seg wide">${[8, 12].map(n => `<button data-gweeks="${n}" aria-pressed="${(P.weeks || 8) === n}">${n} semaines · ${n / 4} blocs</button>`).join('')}</div></div>
+    <div class="k-perso">${periodCard(P.weeks || 8)}</div>
     ${P.days.map((d, di) => `<div class="card daycard gday">
       <h3><span>${di + 1} · ${esc(d.n)}</span><small>${ROLES[d.role] ? ROLES[d.role].l : ''} · ${d.items.reduce((a, x) => a + (+x[1] || 0), 0)} séries</small></h3>
       ${d.items.map((it, ii) => { const e = getEx(it[0]), o = it[4] || {}; return `<div class="sel-item">
-        <div><b>${esc(e.name)}</b>${o.m ? `<span class="mtag">${METHODS[o.m].l}</span>` : ''}${o.pct ? `<span class="mtag">${fr(o.pct * 100)} %</span>` : ''}${P.exs.includes(it[0]) ? '<span class="mtag mine">choisi</span>' : ''}<div class="meta">${MUSCLES[e.mu].l}</div></div>
+        <div><b>${esc(e.name)}</b>${o.m ? `<span class="mtag">${METHODS[o.m].l}</span>` : ''}${P.exs.includes(it[0]) ? '<span class="mtag mine">choisi</span>' : ''}<div class="meta">${MUSCLES[e.mu].l}</div></div>
         <div class="mini-btns"><button data-gmv="${di}:${ii}:-1" aria-label="Monter">↑</button><button data-gswap="${di}:${ii}" aria-label="Remplacer par un autre exercice du même muscle">⇄</button><button data-grm="${di}:${ii}" aria-label="Retirer">✕</button></div>
-        <div class="ctl" style="grid-template-columns:repeat(3,minmax(0,1fr))"><label class="field"><span class="lbl">Séries</span><input data-gi="${di}:${ii}:1" inputmode="numeric" value="${it[1]}"></label>
-        <label class="field"><span class="lbl">Reps</span><input data-gi="${di}:${ii}:2" value="${esc(it[2])}"></label>
-        <label class="field"><span class="lbl">RPE</span><select data-gi="${di}:${ii}:3">${RPES.slice(1).map(r => `<option value="${r}" ${String(it[3]) === r ? 'selected' : ''}>${r.replace('.', ',')}</option>`).join('')}</select></label></div></div>`; }).join('')}
+        <div class="ctl" style="grid-template-columns:repeat(2,minmax(0,1fr))"><label class="field"><span class="lbl">Séries</span><input data-gi="${di}:${ii}:1" inputmode="numeric" value="${it[1]}"></label>
+        <label class="field"><span class="lbl">Reps</span><input data-gi="${di}:${ii}:2" value="${esc(it[2])}"></label></div></div>`; }).join('')}
       <button class="btn sm ghost" data-gadd="${di}">+ Ajouter un exercice</button>
     </div>`).join('')}
     <div class="card"><h3>Volume par muscle et par semaine</h3>
@@ -1705,7 +1790,8 @@ function genAddSheet(di) {
   openSheet(`${sheetHead('Ajouter un exercice')}
     <p class="meta" style="margin:0">Jour ${di + 1} · ${esc(V.gen.prog.days[di].n)}</p>
     <div class="field"><label class="lbl" for="gaq">Chercher</label><input id="gaq" class="input" type="search" placeholder="Nom ou muscle" autocomplete="off"></div>
-    <div class="pick-list" id="gaddlist" style="max-height:48vh">${gAddListHTML()}</div>`);
+    <div class="pick-list" id="gaddlist" style="max-height:40vh">${gAddListHTML()}</div>
+    ${customFormHTML('ga', 'data-ga-add', 'Créer et ajouter à cette séance', '')}`);
 }
 function gAddListHTML() {
   const q = (V.gAddQ || '').trim().toLowerCase();
@@ -1787,9 +1873,10 @@ function viewSession() {
   const firstBar = s.items.find(it => getEx(it.ex).eq === 'barre' && getEx(it.ex).kind === 'poly');
   $('#app').innerHTML = `
     <section class="hero">
-      <div class="eyebrow">${longDate(s.date)}${s.plan ? ` · semaine ${s.plan.week + 1} · ${WEEKS[s.plan.week].n}` : ''}</div>
+      <div class="eyebrow">${longDate(s.date)}${s.plan ? ` · semaine ${s.plan.week + 1}/${s.plan.weeks || 8}` : ''}</div>
       <h1>${esc(s.title)}</h1>
       <span class="kind k-${s.kind}">${KIND_LABEL[s.kind]}</span>
+      ${s.plan ? (() => { const wk = weekInfo(s.plan.weeks || 8, s.plan.week); return `<div class="weekpill big k-${s.kind} ${wk.deload ? 'deload' : ''}"><b>${wk.deload ? 'Décharge' : 'RPE ' + fr(wk.rpe)}</b><span>${wk.n}${wk.deload ? ' · charges à 60 %, une série en moins : on récupère pour mieux repartir' : wk.i === 0 ? ' · début de bloc, garde de la marge' : wk.i === 2 ? ' · fin de bloc, c’est la semaine la plus dure' : ' · ça monte d’un cran'}</span></div>`; })() : ''}
       <div class="stats">
         <div class="stat"><b id="st-sets">${st.sets}/${st.total}</b><span>Séries</span></div>
         <div class="stat"><b id="st-ton">${fr(Math.round(st.ton), 0)}</b><span>Tonnage kg</span></div>
@@ -1818,7 +1905,9 @@ function exCard(s, it, i, warm) {
     const pastNotes = notesOf(it.ex).filter(n => n.it !== it).slice(0, 2);
     if (pastNotes.length) body += `<div class="pastnotes">${pastNotes.map(n => `<p><span class="meta">${shortDate(n.s.date)}</span> ${esc(n.note)}</p>`).join('')}</div>`;
     if (it.m) body += `<div class="method"><span class="mtag ${it.m === 'top' ? 'top' : ''}" style="margin:0">${METHODS[it.m].l}</span><span>${METHODS[it.m].d}</span></div>`;
-    if (it.pct && e.opt.ref) { const M = maxFor(e.opt.ref); body += `<div class="meta">${M ? `${fr(it.pct * 100)} % de ton max ${getEx(e.opt.ref).name.toLowerCase()} (${fr(M)} kg) = ${fr(r25(M * it.pct), 2)} kg` : `Renseigne ton max ${getEx(e.opt.ref).name.toLowerCase()} dans Objectifs pour calculer la charge.`}</div>`; }
+    if (it.calc && it.calc.kg) { const c = it.calc; body += `<div class="calc"><b>${fr(c.kg, 2)} kg</b><span>${c.deload ? `Décharge : 60 % de ta charge de travail sur ${c.reps} reps` : `${c.reps} reps à RPE ${fr(c.rpe)} = ${fr(c.pct * 100, 0)} % de ton 1RM estimé`} (${fr(Math.round(c.e1))} kg, d’après ${c.src})</span></div>`; }
+    else if (it.rpe && s.plan && !it.sets.some(x => x.done)) body += `<div class="meta">Première fois sur cet exercice : prends une charge où il te reste ${fr(Math.max(0, 10 - it.rpe))} reps en réserve. La suite sera calculée à partir de ce que tu fais aujourd’hui.</div>`;
+    if (it.pct && e.opt.ref && !it.calc) { const M = maxFor(e.opt.ref); body += `<div class="meta">${M ? `${fr(it.pct * 100)} % de ton max ${getEx(e.opt.ref).name.toLowerCase()} (${fr(M)} kg) = ${fr(r25(M * it.pct), 2)} kg` : `Renseigne ton max ${getEx(e.opt.ref).name.toLowerCase()} dans Objectifs pour calculer la charge.`}</div>`; }
     if (last) body += `<div class="meta">Dernière fois (${shortDate(last.s.date)}) : ${last.it.sets.filter(x => x.done).map(x => `${fr(num(x.kg), 2)}×${x.reps || '?'}`).join(' · ')}</div>`;
     if (warm && curKg(it)) body += `<div class="warm"><span class="lbl">Montée en charge</span>${warmup(curKg(it)).map((x, j) => `<button class="wchip" data-warm="${j}" aria-pressed="${(s.warm || []).includes(j)}">${fr(x[0], 2)}<small>×${x[1]}</small></button>`).join('')}</div>`;
     if (e.eq === 'barre' && e.kind === 'poly') body += `<div class="loader" id="ld-${it.u}">${loaderHTML(curKg(it))}</div>`;
@@ -1889,8 +1978,8 @@ function viewBilan() {
   let adherence = '';
   if (s.plan && DB.config.plan && DB.config.plan.type === s.plan.type) {
     const p = DB.config.plan, t = s.date; let planned = 0, doneN = 0;
-    for (let d = p.start; d <= t && diffDays(p.start, d) < 49; d = addDays(d, 1)) { const k = p.days.indexOf(dow(d)); if (k >= 0 && !(p.skips || []).includes(`${d}#${k}`)) { planned++; if (allSessions().some(x => x.planKey === `${d}#${k}` && x.status === 'done')) doneN++; } }
-    adherence = `<div class="goal"><div class="goal-top"><b>Programme ${(getProg(p.type) || {short: ''}).short}</b><span>${doneN}/${planned} séances</span></div><div class="progress"><i style="width:${planned ? doneN / planned * 100 : 0}%;background:var(--k-${kindOf(p.type)})"></i></div><div class="meta">Semaine ${s.plan.week + 1}/7 · ${WEEKS[s.plan.week].n}${s.plan.week < 6 ? ` · prochaine étape : ${WEEKS[s.plan.week + 1].n.toLowerCase()}` : ' · bloc terminé après cette semaine'}</div></div>`;
+    for (let d = p.start; d <= t && diffDays(p.start, d) < planWeeks(p) * 7; d = addDays(d, 1)) { const k = p.days.indexOf(dow(d)); if (k >= 0 && !(p.skips || []).includes(`${d}#${k}`)) { planned++; if (allSessions().some(x => x.planKey === `${d}#${k}` && x.status === 'done')) doneN++; } }
+    adherence = `<div class="goal"><div class="goal-top"><b>Programme ${(getProg(p.type) || {short: ''}).short}</b><span>${doneN}/${planned} séances</span></div><div class="progress"><i style="width:${planned ? doneN / planned * 100 : 0}%;background:var(--k-${kindOf(p.type)})"></i></div><div class="meta">${(() => { const n = s.plan.weeks || 8, w = s.plan.week, cur = weekInfo(n, w), nx = w + 1 < n ? weekInfo(n, w + 1) : null; return `Semaine ${w + 1}/${n} · ${cur.n}${nx ? ` · semaine prochaine : ${nx.deload ? 'décharge' : 'RPE ' + fr(nx.rpe)}` : ' · dernière semaine du programme'}`; })()}</div></div>`;
   }
   const verdicts = s.items.map(it => ({it, v: verdict(it)})).filter(x => x.v);
   const scale = 25;
@@ -2144,6 +2233,25 @@ function moveInfo() {
   document.querySelectorAll('[data-mv-to]').forEach(b => b.setAttribute('aria-pressed', b.dataset.mvTo === d));
 }
 
+function periodCard(weeks) {
+  return `<div class="card"><h3>Périodisation · ${weeks} semaines</h3>
+    ${blockLadderSVG(weeks)}
+    <p class="muted" style="margin:0;font-size:13.5px;max-width:62ch">${weeks / 4} blocs de 4 semaines : 3 semaines où la difficulté monte d’un cran (RPE 6 → 7 → 8 au premier bloc, puis 7 → 8 → 9${weeks === 12 ? ', et 7,5 → 8,5 → 9 au troisième' : ''}), puis une semaine de décharge à 60 % des charges avec une série en moins. Les charges sont calculées chaque semaine à partir de ton 1RM estimé et du RPE visé : quand tu progresses, elles montent toutes seules.</p></div>`;
+}
+
+function customFormHTML(px, attr, label, name) {
+  return `<details class="card customex"><summary>Il n’est pas dans la liste ? Crée-le</summary>
+    <div style="display:grid;gap:8px;margin-top:10px">
+      <div class="field"><label class="lbl" for="${px}-name">Nom de l’exercice</label><input id="${px}-name" class="input" placeholder="Ex. Pin press, Rowing Kroc…" value="${esc(name || '')}"></div>
+      <div class="two">
+        <div class="field"><label class="lbl" for="${px}-mu">Muscle principal</label><select id="${px}-mu">${Object.entries(MUSCLES).map(([k, m]) => `<option value="${k}">${m.l}</option>`).join('')}</select></div>
+        <div class="field"><label class="lbl" for="${px}-eq">Matériel</label><select id="${px}-eq">${Object.entries(EQUIP).map(([k, m]) => `<option value="${k}">${m}</option>`).join('')}</select></div>
+      </div>
+      <div class="field"><label class="lbl" for="${px}-kind">Type</label><select id="${px}-kind"><option value="poly">Polyarticulaire (plusieurs articulations)</option><option value="iso">Isolation (une articulation)</option></select></div>
+      <button class="btn" ${attr}>${label}</button>
+    </div></details>`;
+}
+
 /* ================= MINUTEUR, MÉTRONOME, ÉCRAN ================= */
 let timer = null, wakeLock = null, audio = null;
 const tempo = {on: false, ecc: 4, reps: 0, last: null, t0: 0};
@@ -2225,11 +2333,13 @@ function autoTitle(items) {
   const c = {}; items.forEach(it => { const m = getEx(it.ex).mu; c[m] = (c[m] || 0) + 1; });
   return Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 2).map(x => MUSCLES[x[0]].l).join(' & ') || 'Séance libre';
 }
-function addCustom() {
-  const name = ($('#cx-name').value || '').trim();
-  if (!name) { toast('Donne un nom à l’exercice'); $('#cx-name').focus(); return null; }
+function addCustom(px = 'cx') {
+  const name = ($('#' + px + '-name').value || '').trim();
+  if (!name) { toast('Donne un nom à l’exercice'); $('#' + px + '-name').focus(); return null; }
+  const dup = allEx().find(e => e.name.toLowerCase() === name.toLowerCase());
+  if (dup) { toast(`« ${dup.name} » existe déjà : je l’utilise`); return dup.id; }
   const id = 'c-' + uid();
-  DB.config.customs[id] = {name, mu: $('#cx-mu').value, eq: $('#cx-eq').value, kind: $('#cx-kind').value};
+  DB.config.customs[id] = {name, mu: $('#' + px + '-mu').value, eq: $('#' + px + '-eq').value, kind: $('#' + px + '-kind').value};
   saveConfig(); toast(`« ${name} » ajouté à la bibliothèque`);
   return id;
 }
@@ -2269,13 +2379,17 @@ document.addEventListener('click', ev => {
     if (!d.armed) { t.dataset.armed = '1'; t.textContent = 'Toucher encore pour supprimer'; setTimeout(() => { if (t.isConnected) { delete t.dataset.armed; t.textContent = 'Supprimer'; } }, 3000); return; }
     DB.config.myPrograms = myPrograms().filter(x => x.id !== d.genDel); if (V.ptype === 'perso:' + d.genDel) V.ptype = null; saveConfig(); toast('Programme supprimé'); return viewPrograms();
   }
+  if ('gxAdd' in d) { const id = addCustom('gx'); if (!id) return; if (!V.gen.exs.includes(id)) V.gen.exs.push(id); V.gen.gq = ''; const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
+  if ('gaAdd' in d) { const id = addCustom('ga'); if (!id) return; const e = getEx(id); V.gen.prog.days[V.gAddDay].items.push([id, 3, e.kind === 'poly' ? '8-10' : '12-15', 8, {}]); if (!V.gen.prog.exs.includes(id)) V.gen.prog.exs.push(id); closePlayer(); const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
+  if (d.gweeks) { V.gen.prog.weeks = +d.gweeks; V.gen.weeks = +d.gweeks; const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
+  if (d.pweeks) { V.pweeks = +d.pweeks; const y = window.scrollY; viewPrograms(); window.scrollTo(0, y); return; }
   if (d.gfreq) { V.gen.freq = +d.gfreq; const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
   if (d.gpick) { const G = V.gen, i = G.exs.indexOf(d.gpick); if (i >= 0) G.exs.splice(i, 1); else G.exs.push(d.gpick); const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
   if ('genGo' in d || 'genRegen' in d) {
     const G = V.gen; if ('genRegen' in d) G.seed = (G.seed || 1) + 1;
     const goals = G.goals.filter(g => g.t).map(g => g.t === 'pr' ? {t: 'pr', ex: g.ex} : g.t === 'weak' ? {t: 'weak', ex: g.ex, w: g.w || 'bas'} : g.t === 'hyper' ? {t: 'hyper', mu: g.mu} : {t: g.t});
     const keepName = G.prog && G.prog.name && G.name && G.prog.name === G.name;
-    G.prog = genProgram({goals, exs: G.exs, freq: G.freq, seed: G.seed, id: G.editId, name: keepName ? G.name : (G.editId ? G.name : ''), created: G.prog && G.prog.created});
+    G.prog = genProgram({goals, exs: G.exs, freq: G.freq, weeks: G.weeks || (G.prog && G.prog.weeks) || 8, seed: G.seed, id: G.editId, name: keepName ? G.name : (G.editId ? G.name : ''), created: G.prog && G.prog.created});
     G.name = G.prog.name;
     viewGen(); const el = $('#genpreview'); if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); return;
   }
@@ -2324,11 +2438,11 @@ document.addEventListener('click', ev => {
     const i = +d.pday; V.pdays = V.pdays.includes(i) ? V.pdays.filter(x => x !== i) : [...V.pdays, i].sort(); return viewPrograms();
   }
   if ('planGo' in d) {
-    const type = d.type, freq = +d.freq; if (!getProg(type)) return;
+    const type = d.type, freq = +d.freq, weeks = +d.weeks === 12 ? 12 : 8; if (!getProg(type)) return;
     const start = mondayOf(V.pstart || TODAY()), old = DB.config.plan;
     const same = old && old.type === type && old.freq === freq && old.start === start;
     if (old && !same) for (const s of allSessions()) if (belongsToPlan(s, old) && s.status !== 'done') deleteSession(s.id);
-    DB.config.plan = {id: same && old.id ? old.id : uid(), type, freq, start, days: V.pdays.slice().sort(), moves: same ? old.moves || {} : {}, skips: same ? old.skips || [] : []};
+    DB.config.plan = {id: same && old.id ? old.id : uid(), type, freq, weeks, start, days: V.pdays.slice().sort(), moves: same ? old.moves || {} : {}, skips: same ? old.skips || [] : []};
     saveConfig(); toast(`${getProg(type).name} ${freq} j/sem lancé : les séances sont dans le calendrier`);
     V.month = start.slice(0, 7) + '-01'; V.sel = start < TODAY() ? TODAY() : start; V.mode = 'month';
     return go('home');
@@ -2514,6 +2628,10 @@ document.addEventListener('visibilitychange', async () => { if (document.visibil
 
 /* ================= DÉMARRAGE ================= */
 if (!document.documentElement.lang) document.documentElement.lang = 'fr';
+/* Pas de zoom accidentel sur iPhone : pincement et double-tap bloqués */
+['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), {passive: false}));
+document.addEventListener('touchmove', e => { if (e.touches && e.touches.length > 1) e.preventDefault(); }, {passive: false});
+/* le double-tap est neutralisé par touch-action: manipulation (CSS), sans bloquer les taps rapides sur les boutons */
 migrateV1();
 if (STANDALONE && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
 render();
