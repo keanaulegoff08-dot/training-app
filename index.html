@@ -22,7 +22,7 @@
 :root{
   --ground:#E6E9EC; --surface:#F7F8F9; --sunk:#DDE1E5; --ink:#14171B; --muted:#5B636C; --line:#C9CFD6;
   --accent:#1F5FD1; --accent-ink:#FFFFFF; --go:#178A4E; --hot:#CF3129; --warn:#9A7300;
-  --k-masse:#1E9E5A; --k-pb:#E3AB00; --k-force:#1F5FD1; --k-perso:#7B4FD6; --k-libre:#8C96A1; --k-ink-pb:#14171B;
+  --k-masse:#1E9E5A; --k-pb:#E3AB00; --k-force:#1F5FD1; --k-perso:#7B4FD6; --k-comeback:#E2602B; --k-libre:#8C96A1; --k-ink-pb:#14171B;
   --heat:#E0352B; --musc:#D2D7DD; --fig:#EEF0F2;
   --shadow:0 1px 0 rgba(20,23,27,.04), 0 8px 24px -12px rgba(20,23,27,.18);
   --display:"Big Shoulders Display","Arial Narrow","Roboto Condensed",Impact,sans-serif;
@@ -35,7 +35,7 @@
   :root:not([data-theme="light"]){
     --ground:#101215; --surface:#191C20; --sunk:#0B0D0F; --ink:#ECEEF1; --muted:#949BA4; --line:#2A2F35;
     --accent:#5B8DEF; --accent-ink:#0B0D0F; --go:#3CC37A; --hot:#F0544A; --warn:#E7B416;
-    --k-masse:#3CC37A; --k-pb:#F2C230; --k-force:#5B8DEF; --k-perso:#A585F5; --k-libre:#A9B2BC;
+    --k-masse:#3CC37A; --k-pb:#F2C230; --k-force:#5B8DEF; --k-perso:#A585F5; --k-comeback:#FF8A57; --k-libre:#A9B2BC;
     --heat:#FF4A3D; --musc:#2C3238; --fig:#1C2025;
     --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.7);
     color-scheme:dark;
@@ -44,7 +44,7 @@
 :root[data-theme="dark"]{
   --ground:#101215; --surface:#191C20; --sunk:#0B0D0F; --ink:#ECEEF1; --muted:#949BA4; --line:#2A2F35;
   --accent:#5B8DEF; --accent-ink:#0B0D0F; --go:#3CC37A; --hot:#F0544A; --warn:#E7B416;
-  --k-masse:#3CC37A; --k-pb:#F2C230; --k-force:#5B8DEF; --k-perso:#A585F5; --k-libre:#A9B2BC;
+  --k-masse:#3CC37A; --k-pb:#F2C230; --k-force:#5B8DEF; --k-perso:#A585F5; --k-comeback:#FF8A57; --k-libre:#A9B2BC;
   --heat:#FF4A3D; --musc:#2C3238; --fig:#1C2025;
   --shadow:0 1px 0 rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.7);
   color-scheme:dark;
@@ -108,7 +108,7 @@ h3{font:800 20px/1.05 var(--display);text-transform:uppercase;letter-spacing:.01
 /* kind chips */
 .kind{display:inline-flex;align-items:center;gap:6px;font:600 12px var(--body);white-space:nowrap}
 .kind::before{content:"";width:10px;height:10px;border-radius:3px;background:var(--kc)}
-.k-masse{--kc:var(--k-masse)} .k-pb{--kc:var(--k-pb)} .k-force{--kc:var(--k-force)} .k-perso{--kc:var(--k-perso)} .k-libre{--kc:var(--k-libre)}
+.k-masse{--kc:var(--k-masse)} .k-pb{--kc:var(--k-pb)} .k-force{--kc:var(--k-force)} .k-perso{--kc:var(--k-perso)} .k-comeback{--kc:var(--k-comeback)} .k-libre{--kc:var(--k-libre)}
 
 /* hero home */
 .hero{padding-block:22px 4px;display:grid;gap:12px;grid-template-columns:minmax(0,1fr)}
@@ -406,6 +406,21 @@ body.modal-open{overflow:hidden}
 .seg.wide{display:grid;grid-template-columns:1fr 1fr;width:100%}
 .seg.wide button{padding:10px 6px}
 .customex summary{color:var(--accent)}
+/* v6 : cohérence des séances */
+.patline{display:flex;flex-wrap:wrap;gap:4px;margin:-2px 0 4px}
+.patline span{font:500 10px var(--mono);padding:2px 6px;border-radius:4px;background:var(--sunk);color:var(--muted)}
+.patline span.off,.mtag.warn{background:color-mix(in srgb,var(--hot) 18%,var(--surface));color:var(--hot)}
+.wrapchips{flex-wrap:wrap;overflow:visible}
+/* v7 */
+.mtag.force{background:var(--ink);color:var(--ground)}
+.tablewrap{overflow-x:auto;margin-inline:-4px}
+table.loads{border-collapse:collapse;font-variant-numeric:tabular-nums;min-width:100%}
+table.loads th,table.loads td{padding:6px 7px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;font:500 12px var(--mono)}
+table.loads thead th{font-size:10.5px;color:var(--muted)}
+table.loads thead th small{display:block;font-size:9px}
+table.loads tbody th{text-align:left;font:600 13px var(--body);position:sticky;left:0;background:var(--surface)}
+table.loads tbody th span{display:block;font:500 10px var(--mono);color:var(--muted)}
+table.loads .dl{color:var(--muted);background:var(--sunk)}
 @media (max-width:380px){.sel-item .ctl{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
@@ -461,10 +476,12 @@ const EQUIP = {barre:'Barre', halteres:'Haltères', machine:'Machine', poulie:'P
 
 /* id : [nom, muscle principal, [secondaires], équipement, poly|iso, options] ; ref = 1RM de référence pour les % */
 const LIB_RAW = {
-  bench:['Développé couché','pecs',['triceps','delt-ant'],'barre','poly',{ref:'bench'}],
+  bench:['Bench','pecs',['triceps','delt-ant'],'barre','poly',{ref:'bench',force:true,cue:'Omoplates serrées, pieds ancrés, la barre touche la poitrine à chaque rep.'}],
+  'long-pause-bench':['Bench long pause','pecs',['triceps','delt-ant'],'barre','poly',{ref:'bench',cue:'Pause de 3 secondes immobile sur la poitrine, sans relâcher le gainage, puis pousse.'}],
+  'smith-bench':['Bench barre guidée','pecs',['triceps','delt-ant'],'machine','poly',{}],
   larsen:['Bench Larsen','pecs',['triceps','delt-ant'],'barre','poly',{ref:'bench',cue:'Jambes tendues, pieds décollés : zéro leg drive.'}],
-  'paused-bench':['Développé couché pause','pecs',['triceps','delt-ant'],'barre','poly',{ref:'bench',cue:'Marque 1 s d’arrêt immobile sur la poitrine.'}],
-  'close-grip':['Développé couché prise serrée','triceps',['pecs','delt-ant'],'barre','poly',{ref:'bench'}],
+  'paused-bench':['Bench pause','pecs',['triceps','delt-ant'],'barre','poly',{ref:'bench',cue:'Marque 1 s d’arrêt immobile sur la poitrine.'}],
+  'close-grip':['Bench prise serrée','triceps',['pecs','delt-ant'],'barre','poly',{ref:'bench'}],
   'incline-bar':['Développé incliné barre','pecs',['delt-ant','triceps'],'barre','poly',{}],
   'incline-db':['Développé incliné haltères','pecs',['delt-ant','triceps'],'halteres','poly',{}],
   dips:['Dips','pecs',['triceps','delt-ant'],'pdc','poly',{}],
@@ -472,15 +489,15 @@ const LIB_RAW = {
   'cable-fly':['Écarté poulie vis-à-vis','pecs',['delt-ant'],'poulie','iso',{}],
   pushup:['Pompes','pecs',['triceps','delt-ant'],'pdc','poly',{}],
   spoto:['Bench Spoto','pecs',['triceps','delt-ant'],'barre','poly',{ref:'bench',cue:'Arrête la barre 2 à 3 cm au-dessus de la poitrine, marque la pause, puis pousse.'}],
-  squat:['Squat barre','quadriceps',['fessiers','adducteurs','lombaires'],'barre','poly',{ref:'squat',cue:'Gainage bloqué, genoux dans l’axe des pieds.'}],
+  squat:['Squat','quadriceps',['fessiers','adducteurs','lombaires'],'barre','poly',{ref:'squat',force:true,cue:'Gainage bloqué, genoux dans l’axe des pieds.'}],
   'paused-squat':['Squat pause','quadriceps',['fessiers','adducteurs'],'barre','poly',{ref:'squat',cue:'2 s d’arrêt en bas, sans relâcher le gainage.'}],
   'front-squat':['Front squat','quadriceps',['fessiers','haut-dos'],'barre','poly',{}],
   hack:['Hack squat','quadriceps',['fessiers'],'machine','poly',{}],
   'leg-press':['Presse à cuisses','quadriceps',['fessiers','adducteurs'],'machine','poly',{}],
   bss:['Fentes bulgares','quadriceps',['fessiers','adducteurs'],'halteres','poly',{uni:true}],
   'leg-ext':['Leg extension','quadriceps',[],'machine','iso',{}],
-  deadlift:['Soulevé de terre','fessiers',['ischios','lombaires','haut-dos','trapezes'],'barre','poly',{ref:'deadlift',cue:'Barre collée aux tibias, pousse le sol.'}],
-  'deficit-dl':['Soulevé de terre déficit','fessiers',['ischios','lombaires','quadriceps'],'barre','poly',{ref:'deadlift'}],
+  deadlift:['Deadlift','fessiers',['ischios','lombaires','haut-dos','trapezes'],'barre','poly',{ref:'deadlift',force:true,cue:'Barre collée aux tibias, pousse le sol.'}],
+  'deficit-dl':['Deadlift déficit','fessiers',['ischios','lombaires','quadriceps'],'barre','poly',{ref:'deadlift'}],
   rdl:['Soulevé de terre roumain','ischios',['fessiers','lombaires'],'barre','poly',{}],
   'hip-thrust':['Hip thrust','fessiers',['ischios'],'barre','poly',{}],
   'leg-curl':['Leg curl assis','ischios',[],'machine','iso',{}],
@@ -544,6 +561,18 @@ const VARIATIONS = {
 };
 /* Programmes : [exercice, séries, reps, RPE, options] ; pct = % du 1RM de référence */
 const PROGRAMS = {
+  comeback:{
+    name:'Come back', short:'Come back', color:'comeback', fixed:{freq:4, weeks:8},
+    why:'Ton programme de reprise sur 4 jours : deux séances bench (volume, puis pause et Larsen), deux séances squat (volume, puis lourd avec un bench lourd), du dos à chaque séance pour équilibrer. 2 blocs de 4 semaines : le RPE monte de 6 à 8, puis de 7 à 9, avec une décharge à la fin de chaque bloc. Les charges sont calculées chaque semaine depuis tes 1RM.',
+    variants:{
+      4:{split:'Bench volume · Squat volume · Bench & dos · Squat & bench', why:'Chaque mouvement de force revient deux fois par semaine : une fois en volume, une fois lourd ou en variation. Le dos est travaillé à chaque séance.',
+        days:[
+          {n:'Bench volume · Push', items:[['bench',4,'8',8],['rack-pull',3,'5',8],['pec-deck',3,'10-12',8],['pushdown-bar',3,'10-12',8],['db-press',3,'8-10',8],['tbar',3,'8-10',8]]},
+          {n:'Leg day · Squat volume', items:[['squat',4,'6',8],['hack',3,'8-10',8],['leg-ext',3,'12-15',8],['lying-leg-curl',3,'10-12',8],['row-cable',3,'10-12',8]]},
+          {n:'Bench & dos', items:[['long-pause-bench',3,'4',8],['larsen',3,'6',8],['pulldown',3,'10-12',8],['lat-raise',3,'12-15',8],['lat-raise-cable',3,'12-15',8]]},
+          {n:'Squat & bench lourds', items:[['squat',3,'3',8],['bench',3,'3',8],['bss',3,'8-10',8],['back-ext',3,'10-12',8]]}
+        ]}
+    }},
   masse:{
     name:'Prise de masse', short:'Masse', color:'masse',
     why:'L’hypertrophie répond surtout au volume (10 à 20 séries dures par muscle et par semaine), à une proximité d’échec de 1 à 3 reps et à une fréquence de 2 fois par muscle. Les charges restent modérées (6–15 reps) pour accumuler du volume sans casser les articulations.',
@@ -701,6 +730,8 @@ function recentE1(exId, exceptId) {
   }
   return best;
 }
+/* rapport approximatif variation / mouvement de référence (le rack pull se charge plus lourd que le deadlift) */
+const VAR_FACTOR = {'rack-pull': 1.05, larsen: .9, spoto: .9, 'paused-bench': .92, 'long-pause-bench': .88, 'close-grip': .9, 'paused-squat': .85, 'deficit-dl': .9};
 const loadStep = ex => ex.eq === 'halteres' ? 2 : 2.5;
 const roundLoad = (kg, ex) => Math.max(0, Math.round(kg / loadStep(ex)) * loadStep(ex));
 const repTarget = r => { const [lo, hi] = parseReps(r); return Math.round((lo + hi) / 2); };
@@ -711,7 +742,7 @@ function targetLoad(it, session) {
   const manual = ref && it.ex === ref ? num(DB.config.maxes && DB.config.maxes[ref]) : null;
   if (manual) { e1 = manual; src = 'ton max'; }
   if (!e1) { e1 = recentE1(it.ex, session && session.id); if (e1) src = 'tes dernières séances'; }
-  if (!e1 && ref) { const M = maxFor(ref); if (M) { e1 = it.ex === ref ? M : M * .9; src = it.ex === ref ? 'ton max estimé' : `ton max ${getEx(ref).name.toLowerCase()} −10 %`; } }
+  if (!e1 && ref) { const M = maxFor(ref); if (M) { e1 = it.ex === ref ? M : M * (VAR_FACTOR[it.ex] || .9); src = it.ex === ref ? 'ton max estimé' : `ton max ${getEx(ref).name.toLowerCase()} × ${fr(VAR_FACTOR[it.ex] || .9, 2)}`; } }
   if (!e1) return null;
   const reps = repTarget(it.reps);
   const base = pctRPE(reps, it.deload ? 8 : (it.rpe || 8));
@@ -762,7 +793,7 @@ const store = {
 };
 let toastT;
 function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2600); }
-const KIND_LABEL = {masse: 'Prise de masse', pb: 'Powerbuilding', force: 'Force athlétique', perso: 'Programme perso', libre: 'Séance libre'};
+const KIND_LABEL = {comeback: 'Come back', masse: 'Prise de masse', pb: 'Powerbuilding', force: 'Force athlétique', perso: 'Programme perso', libre: 'Séance libre'};
 
 /* ================= ÉTAT & STOCKAGE ================= */
 const LK_S = 'cdf2-sessions', LK_C = 'cdf2-config';
@@ -1099,164 +1130,244 @@ function weeklyVolume(days) {
   }
   return v;
 }
-const BASE_TARGET = {pecs: 8, dorsaux: 8, 'haut-dos': 8, quadriceps: 8, ischios: 6, fessiers: 5, 'delt-lat': 6, 'delt-post': 4, biceps: 6, triceps: 6, mollets: 0, abdos: 3, obliques: 0, adducteurs: 0, trapezes: 0, lombaires: 0, 'delt-ant': 0, 'avant-bras': 0};
+/* ---------- Schémas moteurs : chaque exercice a une « famille » de mouvement ---------- */
+const PATTERN = {
+  bench: 'press_h', 'long-pause-bench': 'press_h', 'smith-bench': 'press_h', larsen: 'press_h', 'paused-bench': 'press_h', spoto: 'press_h', 'close-grip': 'press_h', dips: 'press_h', pushup: 'press_h',
+  'incline-bar': 'press_inc', 'incline-db': 'press_inc', ohp: 'press_v', 'db-press': 'press_v',
+  'pec-deck': 'fly', 'cable-fly': 'fly',
+  pulldown: 'pull_v', pullup: 'pull_v', pullover: 'pull_v',
+  'row-bar': 'row', 'row-db': 'row', 'row-cable': 'row', 'chest-row': 'row', tbar: 'row',
+  'face-pull': 'rear', 'rear-fly': 'rear', shrug: 'shrug',
+  squat: 'squat', 'paused-squat': 'squat', 'front-squat': 'squat', hack: 'squat', 'leg-press': 'squat', bss: 'squat',
+  deadlift: 'hinge', 'deficit-dl': 'hinge', rdl: 'hinge', 'hip-thrust': 'hinge', 'rack-pull': 'hinge', 'back-ext': 'hinge',
+  'leg-ext': 'knee_ext', 'leg-curl': 'knee_flex', 'lying-leg-curl': 'knee_flex', adductor: 'adduct', calf: 'calf', 'calf-seated': 'calf',
+  'lat-raise': 'lat_raise', 'lat-raise-seated': 'lat_raise', 'lat-raise-cable': 'lat_raise',
+  'curl-bar': 'biceps', 'curl-machine': 'biceps', 'curl-cable-uni': 'biceps', 'curl-incline': 'biceps', hammer: 'biceps',
+  'pushdown-bar': 'triceps', 'pushdown-rope': 'triceps', skull: 'triceps', 'oh-ext': 'triceps',
+  'crunch-cable': 'core', 'hanging-leg': 'core', pallof: 'core'
+};
+const MU_PATTERN = {pecs: ['press_h', 'fly'], 'delt-ant': ['press_v', 'press_v'], 'delt-lat': ['lat_raise', 'lat_raise'], 'delt-post': ['rear', 'rear'],
+  biceps: ['biceps', 'biceps'], triceps: ['triceps', 'triceps'], 'avant-bras': ['biceps', 'biceps'], dorsaux: ['pull_v', 'pull_v'], 'haut-dos': ['row', 'rear'],
+  trapezes: ['shrug', 'shrug'], lombaires: ['hinge', 'hinge'], fessiers: ['hinge', 'hinge'], quadriceps: ['squat', 'knee_ext'], ischios: ['hinge', 'knee_flex'],
+  adducteurs: ['adduct', 'adduct'], mollets: ['calf', 'calf'], abdos: ['core', 'core'], obliques: ['core', 'core']};
+function patternOf(id) {
+  if (PATTERN[id]) return PATTERN[id];
+  const e = getEx(id), m = MU_PATTERN[e.mu] || ['core', 'core'];
+  return e.kind === 'poly' ? m[0] : m[1];
+}
+const PAT_GROUP = {press_h: 'push', press_inc: 'push', press_v: 'push', fly: 'push', lat_raise: 'push', triceps: 'push',
+  pull_v: 'pull', row: 'pull', rear: 'pull', shrug: 'pull', biceps: 'pull',
+  squat: 'legs', hinge: 'legs', knee_ext: 'legs', knee_flex: 'legs', adduct: 'legs', calf: 'legs', core: 'core'};
+const PAT_LABEL = {press_h: 'développé', press_inc: 'développé incliné', press_v: 'développé vertical', fly: 'écarté', lat_raise: 'élévations latérales', triceps: 'triceps',
+  pull_v: 'tirage vertical', row: 'rowing', rear: 'arrière d’épaule', shrug: 'trapèzes', biceps: 'biceps',
+  squat: 'squat / presse', hinge: 'charnière de hanche', knee_ext: 'extension de jambe', knee_flex: 'flexion de jambe', adduct: 'adducteurs', calf: 'mollets', core: 'gainage / abdos'};
+
+/* ---------- Organisations de semaine (splits) ---------- */
+// k : main = mouvement principal du jour, c = polyarticulaire secondaire, i = isolation ; opt = facultatif (ajouté si la séance est courte)
+const T = {
+  upper: {l: 'Haut du corps', groups: ['push', 'pull'], slots: [
+    {k: 'main', p: ['press_h']}, {k: 'c', p: ['row', 'pull_v']}, {k: 'c', p: ['press_inc', 'press_v']}, {k: 'c', p: ['pull_v', 'row']},
+    {k: 'i', p: ['lat_raise', 'rear']}, {k: 'i', p: ['triceps']}, {k: 'i', p: ['biceps'], opt: true}]},
+  upperB: {l: 'Haut du corps', groups: ['push', 'pull'], slots: [
+    {k: 'main', p: ['press_h']}, {k: 'c', p: ['pull_v', 'row']}, {k: 'c', p: ['press_v', 'press_inc']}, {k: 'c', p: ['row', 'pull_v']},
+    {k: 'i', p: ['rear', 'lat_raise']}, {k: 'i', p: ['biceps']}, {k: 'i', p: ['triceps'], opt: true}]},
+  lower: {l: 'Bas du corps', groups: ['legs', 'core'], slots: [
+    {k: 'main', p: ['squat']}, {k: 'c', p: ['hinge']}, {k: 'c', p: ['squat'], light: true}, {k: 'i', p: ['knee_flex']}, {k: 'i', p: ['calf', 'knee_ext']}, {k: 'i', p: ['core'], opt: true}]},
+  lowerB: {l: 'Bas du corps', groups: ['legs', 'core'], slots: [
+    {k: 'main', p: ['hinge']}, {k: 'c', p: ['squat']}, {k: 'c', p: ['hinge'], light: true}, {k: 'i', p: ['knee_ext']}, {k: 'i', p: ['knee_flex', 'adduct']}, {k: 'i', p: ['core', 'calf'], opt: true}]},
+  push: {l: 'Push', groups: ['push'], slots: [
+    {k: 'main', p: ['press_h']}, {k: 'c', p: ['press_inc', 'press_v']}, {k: 'c', p: ['press_v', 'press_inc'], opt: true}, {k: 'i', p: ['fly']}, {k: 'i', p: ['lat_raise']}, {k: 'i', p: ['triceps']}, {k: 'i', p: ['triceps'], opt: true}]},
+  pull: {l: 'Pull', groups: ['pull'], slots: [
+    {k: 'main', p: ['pull_v', 'row']}, {k: 'c', p: ['row']}, {k: 'c', p: ['row', 'pull_v']}, {k: 'i', p: ['rear']}, {k: 'i', p: ['biceps']}, {k: 'i', p: ['shrug', 'rear'], opt: true}]},
+  legs: {l: 'Jambes', groups: ['legs', 'core'], slots: [
+    {k: 'main', p: ['squat']}, {k: 'c', p: ['hinge']}, {k: 'c', p: ['squat'], light: true}, {k: 'i', p: ['knee_flex']}, {k: 'i', p: ['knee_ext', 'adduct']}, {k: 'i', p: ['calf']}, {k: 'i', p: ['core'], opt: true}]},
+  fullA: {l: 'Full body', groups: ['push', 'pull', 'legs', 'core'], slots: [
+    {k: 'main', p: ['press_h']}, {k: 'c', p: ['squat']}, {k: 'c', p: ['row', 'pull_v']}, {k: 'c', p: ['hinge'], light: true}, {k: 'i', p: ['lat_raise', 'rear']}, {k: 'i', p: ['biceps', 'triceps'], opt: true}]},
+  fullB: {l: 'Full body', groups: ['push', 'pull', 'legs', 'core'], slots: [
+    {k: 'main', p: ['press_h']}, {k: 'c', p: ['hinge']}, {k: 'c', p: ['pull_v', 'row']}, {k: 'c', p: ['squat'], light: true}, {k: 'i', p: ['triceps', 'biceps']}, {k: 'i', p: ['core'], opt: true}]},
+  fullC: {l: 'Full body', groups: ['push', 'pull', 'legs', 'core'], slots: [
+    {k: 'main', p: ['press_h']}, {k: 'c', p: ['squat']}, {k: 'c', p: ['row', 'pull_v']}, {k: 'c', p: ['press_v', 'press_inc'], opt: true}, {k: 'i', p: ['knee_flex', 'rear']}, {k: 'i', p: ['biceps', 'lat_raise'], opt: true}]}
+};
+const SPLITS = {
+  full: {l: 'Full body', d: 'Tout le corps à chaque séance : chaque muscle est travaillé à chaque fois.', freqs: [3, 4, 5], days: n => ['fullA', 'fullB', 'fullC', 'fullA', 'fullB'].slice(0, n)},
+  ul: {l: 'Haut / Bas', d: 'Une séance haut du corps, une séance bas du corps, en alternance.', freqs: [4], days: () => ['upper', 'lower', 'upperB', 'lowerB']},
+  ppl: {l: 'Push / Pull / Jambes', d: 'Pousser, tirer, jambes : chaque séance a une seule famille de mouvements.', freqs: [3], days: () => ['push', 'pull', 'legs']},
+  pplul: {l: 'Push / Pull / Jambes + Haut / Bas', d: 'Le PPL couvre tout une fois, le haut/bas ajoute un 2e passage sur chaque muscle.', freqs: [5], days: () => ['push', 'pull', 'legs', 'upperB', 'lowerB']}
+};
+const autoSplit = freq => freq === 3 ? 'full' : freq === 4 ? 'ul' : 'pplul';
+const splitsFor = freq => Object.keys(SPLITS).filter(k => SPLITS[k].freqs.includes(freq));
+const CANON = {press_h: ['bench', 'incline-bar', 'dips'], press_inc: ['incline-bar', 'incline-db'], press_v: ['ohp', 'db-press'], squat: ['squat', 'hack', 'leg-press', 'front-squat'], hinge: ['deadlift', 'rdl', 'hip-thrust'], pull_v: ['pullup', 'pulldown'], row: ['row-bar', 'tbar', 'chest-row', 'row-cable']};
+const ROLE_ORDER = {force: 0, faible: 1, volume: 2};
+const MAIN_PATTERN = id => PATTERN[getEx(id).opt.ref || id] || patternOf(id);
+
 function genProgram(cfg) {
   const r = rng(cfg.seed || 1), goals = (cfg.goals || []).filter(g => g.t), chosen = (cfg.exs || []).filter(id => getEx(id)), freq = cfg.freq || 4;
+  const split = SPLITS[cfg.split] && SPLITS[cfg.split].freqs.includes(freq) ? cfg.split : autoSplit(freq);
   const rand = arr => arr[Math.floor(r() * arr.length)];
   const weak = {}, hyperMus = [];
   for (const g of goals) { if (g.t === 'weak' && g.ex) weak[g.ex] = g.w || 'bas'; if (g.t === 'hyper' && g.mu && !hyperMus.includes(g.mu)) hyperMus.push(g.mu); }
-  // 1. mouvements principaux
   let mains = [];
   for (const g of goals) if ((g.t === 'pr' || g.t === 'weak') && g.ex && !mains.includes(g.ex)) mains.push(g.ex);
-  if (!mains.length) mains = chosen.filter(id => ['bench', 'squat', 'deadlift', 'ohp'].includes(id));
-  if (!mains.length && !hyperMus.length) mains = ['squat', 'bench'].concat(freq >= 4 ? ['deadlift'] : []);
   mains = mains.slice(0, 3);
-  // 2. volume visé par muscle et par semaine
-  const k = freq === 3 ? .8 : freq === 5 ? 1.15 : 1, target = {};
-  for (const m in MUSCLES) target[m] = Math.round((BASE_TARGET[m] || 0) * k);
-  for (const m of hyperMus) target[m] = Math.round(14 * k);
-  // les muscles qui font monter un record reçoivent un peu plus de travail direct
-  const BOOST = {bench: ['triceps', 'delt-ant'], squat: ['quadriceps', 'fessiers'], deadlift: ['fessiers', 'ischios', 'haut-dos'], ohp: ['triceps', 'delt-lat']};
-  for (const m of mains) for (const mu of BOOST[getEx(m).opt.ref || m] || []) target[mu] = Math.max(target[mu], Math.round(10 * k));
-  // 3. rôles des séances
-  const slots = [];
-  mains.forEach(m => slots.push({role: 'force', main: m}));
-  mains.forEach(m => { if (weak[m]) slots.push({role: 'faible', main: m}); });
-  mains.forEach(m => slots.push({role: 'volume', main: m}));
-  while (slots.length < freq) slots.push({role: 'hyper', main: null});
-  const plan = slots.slice(0, freq);
-  // 4. assemblage
-  const used = {}, days = [];
-  const vol = () => weeklyVolume(days);
-  const variationOf = (main, w) => {
-    const ref = getEx(main).opt.ref || main;
-    const mineV = chosen.find(id => id !== main && getEx(id).opt.ref === ref && ((VARIATIONS[ref] || {})[w] || []).includes(id));
-    const anyMine = chosen.find(id => id !== main && getEx(id).opt.ref === ref);
-    const list = ((VARIATIONS[ref] || {})[w] || []).filter(x => LIB_RAW[x]);
-    return mineV || (w === 'bas' || w === 'technique' ? anyMine : null) || list[0] || main;
-  };
-  const scheme = (id, hyp) => {
-    const e = getEx(id);
-    if (e.kind === 'poly' && e.eq === 'barre' && e.opt.ref) return [3, '5', 7.5];
-    if (e.kind === 'poly') return [3, '8-10', 8];
-    return hyp ? [3, '12-15', 9] : [3, '10-15', 8.5];
-  };
-  for (const slot of plan) {
-    const R = ROLES[slot.role], items = [], today = new Map(), cap = slot.role === 'hyper' ? 6 : 5, minItems = slot.role === 'hyper' ? 5 : 4;
-    const put = (id, sets, reps, rpe, o = {}) => { items.push([id, sets, reps, rpe, o]); used[id] = (used[id] || 0) + 1; const m = getEx(id).mu; today.set(m, (today.get(m) || 0) + 1); };
-    const roomFor = m => (today.get(m) || 0) < (hyperMus.includes(m) ? 2 : 1);
-    days.push({n: '', role: slot.role, items});
-    if (slot.main) {
-      const mainEx = getEx(slot.main), ref = mainEx.opt.ref, M = ref ? maxFor(ref) : null;
-      if (slot.role === 'faible') {
-        const v = variationOf(slot.main, weak[slot.main] || 'bas');
-        put(v, 4, '5', 7, {});
-        if (v !== slot.main) put(slot.main, 3, '5', 7.5, {});
-      } else {
-        put(slot.main, R.sets, R.reps, R.rpe, {});
-      }
+
+  // 1. squelette de la semaine : chaque séance = un thème + des emplacements par schéma moteur
+  const days = SPLITS[split].days(freq).map(tk => ({tk, theme: T[tk], n: '', role: null, main: null, items: [], slots: T[tk].slots.map(s => Object.assign({}, s, {fill: null}))}));
+  const used = {};
+  const place = (day, slot, id, sets, reps, o = {}) => { slot.fill = [id, sets, reps, 8, o]; used[id] = (used[id] || 0) + 1; };
+
+  // 2. mouvements principaux : force → point faible → volume, chacun sur une séance qui a l'emplacement adéquat
+  for (const m of mains) {
+    const pat = MAIN_PATTERN(m);
+    const slotFor = d => d.slots.find(x => !x.fill && x.p.includes(pat) && x.k !== 'i');
+    // d'abord les séances sans mouvement principal, puis celles qui en ont déjà un (full body : deux gros mouvements possibles)
+    const cand = days.filter(d => slotFor(d)).sort((a, b) => (!!a.main - !!b.main) || (a.slots.indexOf(slotFor(a)) - b.slots.indexOf(slotFor(b))));
+    const ordered = days.filter(d => cand.includes(d));
+    const pick = []; for (const d of cand) if (pick.length < 3) pick.push(d);
+    pick.sort((x, y) => ordered.indexOf(x) - ordered.indexOf(y));
+    const roles = ['force'].concat(weak[m] ? ['faible'] : [], ['volume']);
+    const variation = () => {
+      const ref = getEx(m).opt.ref || m, w = weak[m] || 'bas';
+      const mineV = chosen.find(id => id !== m && getEx(id).opt.ref === ref && ((VARIATIONS[ref] || {})[w] || []).includes(id))
+        || ((w === 'bas' || w === 'technique') ? chosen.find(id => id !== m && getEx(id).opt.ref === ref) : null);
+      return mineV || (((VARIATIONS[ref] || {})[w] || []).find(x => LIB_RAW[x])) || m;
+    };
+    const plan = pick.length >= roles.length ? roles : pick.length >= 2 ? ['force', 'volume'] : ['force'];
+    const taken = new Set();
+    plan.forEach(role => {
+      const free = pick.filter(d => !taken.has(d));
+      const score = d => (role === 'force' && d.force ? 10 : 0) + (d.main ? 1 : 0) + days.indexOf(d) * .01;
+      const d = free.sort((a, b) => score(a) - score(b))[0]; if (!d) return;
+      taken.add(d);
+      const sl = slotFor(d); sl.k = 'main';
+      if (role === 'force') d.force = true;
+      if (!d.main) { d.main = m; d.role = role; }
+      (d.mains = d.mains || []).push({m, role}); sl.role = role;
+      const hinge = pat === 'hinge';
+      if (role === 'faible') place(d, sl, variation(), 4, '5');
+      else place(d, sl, m, ROLES[role].sets, role === 'volume' && hinge ? '5' : ROLES[role].reps);
+    });
+    if (weak[m] && !plan.includes('faible') && pick[0]) {
+      // pas assez de séances : la variation se fait juste après le mouvement lourd, le jour « force »
+      const d0 = pick.find(d => (d.mains || []).some(x => x.m === m && x.role === 'force')) || pick[0], at = d0.slots.findIndex(x => x.fill && x.fill[0] === m);
+      const sl = {k: 'main', p: [pat], fill: null, extra: true, role: 'faible'}; d0.slots.splice(at + 1, 0, sl); place(d0, sl, variation(), 3, '5');
     }
-    // accessoires : muscle le plus en déficit, un exercice par muscle et par séance
-    for (let guard = 0; items.length < cap && guard < 30; guard++) {
-      const v = vol();
-      const unplaced = chosen.filter(id => !used[id] && roomFor(getEx(id).mu));
-      let id = null;
-      if (unplaced.length) {
-        // un exercice choisi : priorité, sur une séance où son muscle n'est pas déjà travaillé
-        id = unplaced.sort((a, b) => ((target[getEx(b).mu] || 0) - (v[getEx(b).mu] || 0)) - ((target[getEx(a).mu] || 0) - (v[getEx(a).mu] || 0)))[0];
-      } else {
-        const relaxed = items.length < minItems;
-        const cap2 = m => hyperMus.includes(m) ? 20 : (target[m] || 0) * (relaxed ? 1.5 : 1);
-        const muscles = Object.keys(MUSCLES).filter(m => roomFor(m) && (target[m] || 0) > 0 && (v[m] || 0) < cap2(m))
-          .sort((a, b) => relaxed && !hyperMus.includes(a) && !hyperMus.includes(b)
-            ? (v[a] || 0) / target[a] - (v[b] || 0) / target[b]
-            : ((target[b] - (v[b] || 0)) + (hyperMus.includes(b) ? 6 : 0)) - ((target[a] - (v[a] || 0)) + (hyperMus.includes(a) ? 6 : 0)));
-        for (const m of muscles) {
-          const pool = allEx().filter(e => e.mu === m && !items.some(i => i[0] === e.id));
-          const hasPoly = items.some(i => getEx(i[0]).kind === 'poly' && groupOf(getEx(i[0]).mu) === groupOf(m));
-          const wantPoly = (['legs', 'pull'].includes(groupOf(m)) || hyperMus.includes(m)) && !hasPoly;
-          const heavy = e => e.eq === 'barre' && (LIFTS_MAIN.includes(e.id) || e.opt.ref);
-          const mine = chosen.filter(x => getEx(x).mu === m && !items.some(i => i[0] === x) && (used[x] || 0) < 2);
-          const fresh = pool.filter(e => !used[e.id] && !heavy(e) && (wantPoly ? e.kind === 'poly' : e.kind === 'iso'));
-          const fallback = pool.filter(e => (used[e.id] || 0) < 2 && !heavy(e));
-          const pick = mine[0] || (fresh.length ? rand(fresh).id : fallback.length ? rand(fallback).id : null);
-          if (pick) { id = pick; break; }
-        }
-      }
-      if (!id) break;
-      const hyp = hyperMus.includes(getEx(id).mu), [st, rp, rpe] = scheme(id, hyp);
-      put(id, st, rp, rpe, {});
-    }
-    // méthode d'intensification sur le dernier isolement d'un muscle visé
-    const lastHyp = [...items].reverse().find(i => hyperMus.includes(getEx(i[0]).mu) && getEx(i[0]).kind === 'iso');
-    if (lastHyp) lastHyp[4] = {m: slot.role === 'hyper' ? 'drop' : 'myo'};
   }
-  // 5. exercices choisis qui n'ont pas trouvé de place
+  // 3. exercices choisis : chacun dans l'emplacement de son schéma moteur, réparti sur la semaine
+  const fits = (slot, id) => slot.p.includes(patternOf(id));
+  const groupOk = (d, id) => d.theme.groups.includes(PAT_GROUP[patternOf(id)]);
   for (const id of chosen) {
     if (used[id]) continue;
-    const mu = getEx(id).mu;
-    const d = days.filter(x => x.items.length < 7 && !x.items.some(i => getEx(i[0]).mu === mu)).sort((a, b) => a.items.length - b.items.length)[0]
-      || days.filter(x => x.items.length < 7).sort((a, b) => a.items.length - b.items.length)[0];
-    if (!d) break;
-    const [st, rp, rpe] = scheme(id, hyperMus.includes(mu)); d.items.push([id, st, rp, rpe, {}]); used[id] = 1;
-  }
-  // 6. équilibre minimal : chaque grand groupe garde au moins 6 séries « principales » par semaine
-  const balanced = [];
-  for (let i = 0; i < 6; i++) {
-    const gv = {}; for (const d of days) for (const it of d.items) { const g = groupOf(getEx(it[0]).mu); gv[g] = (gv[g] || 0) + (+it[1] || 0); }
-    const g = ['legs', 'pull', 'push'].find(x => (gv[x] || 0) < 6);
-    if (!g) break;
-    const d = days.filter(x => x.items.length < 7 && !x.items.some(it => groupOf(getEx(it[0]).mu) === g)).sort((a, b) => a.items.length - b.items.length)[0]
-      || days.filter(x => x.items.length < 7).sort((a, b) => a.items.length - b.items.length)[0];
-    if (!d) break;
-    const pool = allEx().filter(e => groupOf(e.mu) === g && e.kind === 'poly' && e.eq !== 'barre' && !used[e.id] && ['quadriceps', 'ischios', 'fessiers', 'dorsaux', 'haut-dos', 'pecs', 'delt-ant'].includes(e.mu));
-    if (!pool.length) break;
-    const e = rand(pool); d.items.push([e.id, 3, '8-12', 8, {}]); used[e.id] = 1; balanced.push(g);
-  }
-  // 7. ordre dans la séance (lourd d'abord) et noms
-  plan.forEach((slot, i) => {
-    const d = days[i], lead = d.items.slice(0, slot.main ? (slot.role === 'faible' ? 2 : 1) : 0), rest = d.items.slice(lead.length);
-    rest.sort((a, b) => (getEx(b[0]).kind === 'poly') - (getEx(a[0]).kind === 'poly'));
-    d.items = [...lead, ...rest];
-    if (slot.main) d.n = `${shortName(slot.main)} ${slot.role === 'faible' ? WEAK_SHORT[weak[slot.main] || 'bas'] : ROLES[slot.role].l.toLowerCase()}`;
-    else {
-      const c = {}; d.items.forEach((it, j) => { const m = getEx(it[0]).mu; c[m] = (c[m] || 0) + (+it[1] || 0) + (getEx(it[0]).kind === 'poly' ? 2 : 0) - j * .1; });
-      d.n = Object.entries(c).sort((a, b) => b[1] - a[1]).slice(0, 2).map(x => MUSCLES[x[0]].l).join(' & ') || 'Hypertrophie';
+    const order = days.map((d, i) => ({d, i, load: d.slots.filter(s => s.fill).length})).sort((a, b) => a.load - b.load || a.i - b.i);
+    let done = false;
+    for (const pass of ['exact', 'group']) {
+      for (const {d} of order) {
+        if (d.slots.some(s => s.fill && s.fill[0] === id)) continue;
+        const s = d.slots.find(x => !x.fill && (pass === 'exact' ? fits(x, id) && x.k !== 'main' || (fits(x, id) && x.k === 'main' && !d.main) : false));
+        if (s) { const e = getEx(id); place(d, s, id, s.k === 'i' ? 3 : 3, e.kind === 'poly' ? (e.eq === 'barre' && e.opt.ref ? '5' : '8-10') : '10-15'); done = true; break; }
+        if (pass === 'group' && groupOk(d, id) && d.slots.filter(x => x.fill).length < 7) {
+          // emplacement en plus, dans une séance du bon thème
+          const e = getEx(id), sl = {k: e.kind === 'poly' ? 'c' : 'i', p: [patternOf(id)], fill: null, extra: true};
+          d.slots.push(sl); place(d, sl, id, 3, e.kind === 'poly' ? '8-10' : '10-15'); done = true; break;
+        }
+      }
+      if (done) break;
     }
-  });
-  const seen = {};
-  days.forEach(d => { seen[d.n] = (seen[d.n] || 0) + 1; });
+  }
+  // 4. emplacements restants : bibliothèque, en variant les exercices d'une séance à l'autre
+  const heavy = e => e.eq === 'barre' && (LIFTS_MAIN.includes(e.id) || e.opt.ref);
+  for (const d of days) {
+    const required = d.slots.filter(s => !s.opt), optional = d.slots.filter(s => s.opt);
+    for (const s of [...required, ...optional]) {
+      if (s.fill) continue;
+      const filled = d.slots.filter(x => x.fill).length;
+      if (s.opt && filled >= 6) continue;
+      const pool = allEx().filter(e => s.p.includes(patternOf(e.id)) && !d.slots.some(x => x.fill && x.fill[0] === e.id));
+      let cands = pool.filter(e => !used[e.id]);
+      if (s.k !== 'main' || d.main) cands = cands.filter(e => !heavy(e) || s.k === 'main');
+      if (s.light) { const l = cands.filter(e => e.eq !== 'barre'); if (l.length) cands = l; }
+      if (s.k === 'main') { const m2 = cands.filter(e => e.kind === 'poly' && e.eq !== 'pdc' && !(e.opt && e.opt.uni)); if (m2.length) cands = m2; }
+      if (!cands.length) cands = pool.filter(e => (used[e.id] || 0) < 2 && (s.k === 'main' || !heavy(e)));
+      if (!cands.length) continue;
+      // emplacement principal sans mouvement visé : un polyarticulaire solide ; ailleurs, préférence au schéma listé en premier
+      const firstPat = cands.filter(e => patternOf(e.id) === s.p[0]);
+      const pickFrom = firstPat.length ? firstPat : cands;
+      const prefer = s.k === 'main' ? pickFrom.filter(e => e.kind === 'poly') : s.k === 'c' ? pickFrom.filter(e => e.kind === 'poly') : pickFrom.filter(e => e.kind === 'iso');
+      let e = rand(prefer.length ? prefer : pickFrom);
+      if (s.k === 'main') { const c = (CANON[s.p[0]] || []).map(getEx).find(x => cands.some(y => y.id === x.id)); if (c) e = c; }
+      const hyp = hyperMus.includes(e.mu);
+      if (s.k === 'main') place(d, s, e.id, 3, e.eq === 'barre' ? (patternOf(e.id) === 'hinge' ? '5' : '6-8') : '8-10');
+      else if (s.k === 'c') place(d, s, e.id, 3, e.kind === 'poly' ? '8-10' : '10-12');
+      else place(d, s, e.id, hyp ? 4 : 3, hyp ? '12-15' : '10-15', hyp ? {m: 'drop'} : {});
+    }
+  }
+  // 5. muscles à faire grossir : +1 série sur leurs exercices, puis un isolement en plus si le volume reste bas
+  for (const d of days) for (const s of d.slots) if (s.fill && hyperMus.includes(getEx(s.fill[0]).mu) && s.k !== 'main') s.fill[1] = Math.max(s.fill[1], 4);
+  for (let i = 0; i < 8; i++) {
+    const v = weeklyVolume(days.map(d => ({items: d.slots.filter(s => s.fill).map(s => s.fill)})));
+    const need = hyperMus.find(m => (v[m] || 0) < 12);
+    if (!need) break;
+    const pat = (MU_PATTERN[need] || ['core', 'core'])[1];
+    const has = x => x.slots.some(s => s.fill && getEx(s.fill[0]).mu === need && s.k === 'i');
+    const d = days.filter(x => x.theme.groups.includes(PAT_GROUP[pat]) && x.slots.filter(s => s.fill).length < 7).sort((a, b) => (has(a) - has(b)) || (a.slots.filter(s => s.fill).length - b.slots.filter(s => s.fill).length))[0];
+    if (!d) break;
+    const pool = allEx().filter(e => e.mu === need && !d.slots.some(s => s.fill && s.fill[0] === e.id));
+    if (!pool.length) break;
+    const e = rand(pool.filter(x => x.kind === 'iso').length ? pool.filter(x => x.kind === 'iso') : pool);
+    const sl = {k: 'i', p: [patternOf(e.id)], fill: null, extra: true}; d.slots.push(sl); place(d, sl, e.id, 4, '12-15', {m: 'myo'});
+  }
+  // 6. 7 exercices maximum : on retire d'abord les isolements choisis par l'app, jamais les tiens
+  for (const d of days) {
+    let guard = 0;
+    while (d.slots.filter(s => s.fill).length > 7 && guard++ < 6) {
+      const removable = d.slots.filter(s => s.fill && s.k !== 'main' && !chosen.includes(s.fill[0]));
+      const victim = removable.filter(s => s.k === 'i').pop() || removable.pop();
+      if (!victim) break;
+      used[victim.fill[0]]--; victim.fill = null;
+    }
+  }
+  // 7. ordre (principal, polyarticulaires, isolements) et noms
+  const count = {};
+  days.forEach(d => { count[d.theme.l] = (count[d.theme.l] || 0) + 1; });
   const idx = {};
-  days.forEach(d => { if (seen[d.n] > 1) { idx[d.n] = (idx[d.n] || 0) + 1; d.n += ' ' + 'ABCDE'[idx[d.n] - 1]; } });
+  for (const d of days) {
+    const rank = s => s.k === 'main' ? (s.role ? ROLE_ORDER[s.role] * .1 : .5) : s.k === 'c' ? 1 : 2;
+    d.items = d.slots.filter(s => s.fill).sort((a, b) => rank(a) - rank(b)).map(s => s.fill);
+    idx[d.theme.l] = (idx[d.theme.l] || 0) + 1;
+    const letter = count[d.theme.l] > 1 ? ' ' + 'ABCDE'[idx[d.theme.l] - 1] : '';
+    const ms = (d.mains || []).slice().sort((a, b) => ROLE_ORDER[a.role] - ROLE_ORDER[b.role]);
+    if (ms.length) { d.main = ms[0].m; d.role = ms[0].role; }
+    d.n = d.theme.l + letter + (ms.length ? ' · ' + ms.map(x => `${shortName(x.m)} ${x.role === 'faible' ? WEAK_SHORT[weak[x.m] || 'bas'] : ROLES[x.role].l.toLowerCase()}`).join(' + ') : '');
+    delete d.mains; delete d.force;
+    d.theme = d.tk; delete d.slots; delete d.tk;
+  }
   return {
-    id: cfg.id || uid(), name: cfg.name || autoName(goals, mains), freq, weeks: cfg.weeks === 12 ? 12 : 8, goals, exs: chosen, seed: cfg.seed || 1,
-    days, created: cfg.created || Date.now(), why: genWhy(goals, mains, weak, days, freq, balanced)
+    id: cfg.id || uid(), name: cfg.name || autoName(goals, mains), freq, split, weeks: cfg.weeks === 12 ? 12 : 8, goals, exs: chosen, seed: cfg.seed || 1,
+    days, created: cfg.created || Date.now(), why: genWhy(goals, mains, weak, days, freq, split)
   };
 }
+/** contrôle : un exercice est-il hors du thème de sa séance ? */
+function offTheme(day, id) { const t = T[day.theme]; return t ? !t.groups.includes(PAT_GROUP[patternOf(id)]) : false; }
 function autoName(goals, mains) {
   const pr = goals.find(g => g.t === 'pr'), hy = goals.find(g => g.t === 'hyper');
   if (pr) return `Objectif ${shortName(pr.ex)}`;
   if (hy) return `Focus ${MUSCLES[hy.mu].l.toLowerCase()}`;
   return mains.length ? `Programme ${shortName(mains[0]).toLowerCase()}` : 'Mon programme';
 }
-function genWhy(goals, mains, weak, days, freq, balanced = []) {
+function genWhy(goals, mains, weak, days, freq, split) {
   const parts = [];
   const gl = goals.map(g => g.t === 'pr' ? `battre ton record au ${getEx(g.ex).name.toLowerCase()}`
     : g.t === 'weak' ? `corriger ${WEAKNESS[g.w || 'bas'].l.toLowerCase()} sur le ${getEx(g.ex).name.toLowerCase()}`
     : g.t === 'hyper' ? `faire grossir ${MUSCLES[g.mu].l.toLowerCase()}` : 'rester régulier');
   if (gl.length) parts.push(`Construit pour ${gl.join(', ')}.`);
-  const roles = days.map(d => d.role);
-  const cnt = k => roles.filter(x => x === k).length;
-  const bits = [];
-  if (cnt('force')) bits.push(`${cnt('force')} jour${cnt('force') > 1 ? 's' : ''} force (séries de 3 lourdes)`);
-  if (cnt('faible')) bits.push(`${cnt('faible')} jour de point faible (variation ciblée)`);
-  if (cnt('volume')) bits.push(`${cnt('volume')} jour${cnt('volume') > 1 ? 's' : ''} volume (4 × 8)`);
-  if (cnt('hyper')) bits.push(`${cnt('hyper')} jour${cnt('hyper') > 1 ? 's' : ''} d’hypertrophie`);
-  parts.push(`Sur ${freq} séances : ${bits.join(', ')}.`);
+  const S = SPLITS[split];
+  parts.push(`Organisation ${S.l.toLowerCase()} sur ${freq} séances : ${S.d.charAt(0).toLowerCase() + S.d.slice(1)}`);
+  for (const m of mains) {
+    const ds = days.filter(d => d.main === m).map(d => `${d.role === 'faible' ? 'point faible' : ROLES[d.role].l.toLowerCase()}`);
+    if (ds.length) parts.push(`${shortName(m)} : ${ds.join(', ')}, toujours en premier dans la séance, quand tu es frais.`);
+  }
   for (const g of goals) if (g.t === 'weak') parts.push(WEAKNESS[g.w || 'bas'].d);
-  const GL = {legs: 'jambes', pull: 'dos', push: 'poussée'};
-  if (balanced.length) parts.push(`${[...new Set(balanced)].map(g => GL[g]).join(' et ').replace(/^./, c => c.toUpperCase())} : pas dans tes objectifs, mais j’ai gardé un minimum de volume pour rester équilibré.`);
-  parts.push('Périodisation par blocs : 3 semaines où le RPE monte d’un cran chaque semaine, puis une semaine de décharge à 60 %. Les charges se calculent toutes seules à partir de ton 1RM estimé.');
+  parts.push('Dans chaque séance, un emplacement par famille de mouvement (développé, tirage, squat, charnière, isolements) : pas de doublon, pas d’exercice hors thème.');
+  parts.push('Périodisation par blocs : 3 semaines où le RPE monte d’un cran, puis une semaine de décharge à 60 %. Les charges se calculent à partir de ton 1RM estimé.');
   return parts.join(' ');
 }
 /** transforme un programme perso en objet compatible avec le reste de l’app */
@@ -1620,7 +1731,7 @@ function viewHome() {
         <span class="grow"></span><button class="chip-btn" data-today>Aujourd’hui</button></div>
       ${calBody}
       <div class="legend">
-        <span class="kind k-masse">Masse</span><span class="kind k-pb">Powerbuilding</span><span class="kind k-force">Force</span><span class="kind k-perso">Perso</span><span class="kind k-libre">Libre</span><span class="kind dash">Prévue</span>
+        <span class="kind k-comeback">Come back</span><span class="kind k-masse">Masse</span><span class="kind k-pb">Powerbuilding</span><span class="kind k-force">Force</span><span class="kind k-perso">Perso</span><span class="kind k-libre">Libre</span><span class="kind dash">Prévue</span>
       </div>
     </section>
     ${V.mode === 'month' ? dayPanel(V.sel) : ''}
@@ -1661,12 +1772,12 @@ function viewPrograms() {
   let type = V.ptype || def;
   if (!getProg(type)) type = 'masse';
   const prog = getProg(type), custom = !!prog.custom;
-  const freq = custom ? +Object.keys(prog.variants)[0] : (V.pfreq || (p && p.type === type ? p.freq : 4));
+  const freq = prog.fixed ? prog.fixed.freq : custom ? +Object.keys(prog.variants)[0] : (V.pfreq || (p && p.type === type ? p.freq : 4));
   const v = prog.variants[freq], kc = kindOf(type);
   const isActive = p && p.type === type && p.freq === freq;
   const t = TODAY(), nextMon = dow(t) === 0 ? t : addDays(mondayOf(t), 7);
   if (!V.pstart || V.pstartKey !== type + freq) { V.pstart = isActive ? p.start : nextMon; V.pdays = isActive ? p.days.slice() : DAY_PATTERNS[freq].slice(); V.pstartKey = type + freq; }
-  if (!V.pweeks || V.pweeksKey !== type) { V.pweeks = isActive ? planWeeks(p) : (custom && getProgRaw(type) && getProgRaw(type).weeks) || 8; V.pweeksKey = type; }
+  if (!V.pweeks || V.pweeksKey !== type) { V.pweeks = isActive ? planWeeks(p) : (custom && getProgRaw(type) && getProgRaw(type).weeks) || (prog.fixed && prog.fixed.weeks) || 8; V.pweeksKey = type; }
   const pp = p ? getProg(p.type) : null;
   $('#app').innerHTML = `
     ${p && pp ? `<div class="card edge k-${kindOf(p.type)}" style="margin-top:16px"><div class="row"><div class="grow"><div class="lbl">Programme en cours</div><h3>${esc(pp.name)} · ${p.freq} j/sem</h3><div class="meta">Depuis le ${longDate(p.start)} · ${planRemaining().length} séances restantes</div></div></div><button class="btn danger" data-plan-cancel>Annuler ce programme</button></div>` : ''}
@@ -1688,10 +1799,10 @@ function viewPrograms() {
       <div class="tabs">${Object.entries(PROGRAMS).map(([k, pr]) => `<button class="chip-btn" data-ptype="${k}" aria-pressed="${k === type}"><span class="kind k-${k}">${pr.name}</span></button>`).join('')}</div>
     </section>
     <section class="hero k-${kc}" id="progdetail">
-      <div class="eyebrow">${custom ? 'Programme perso' : 'Programme tout fait'} · bloc de 7 semaines</div>
+      <div class="eyebrow">${custom ? 'Programme perso' : 'Programme tout fait'} · ${prog.fixed ? `${prog.fixed.freq} jours · ${prog.fixed.weeks} semaines` : 'blocs de 4 semaines'}</div>
       <h1>${esc(prog.name)}</h1>
       <p class="why">${esc(prog.why)}</p>
-      ${custom ? '' : `<div class="freq">${[3, 4, 5].map(n => `<button data-pfreq="${n}" aria-pressed="${n === freq}"><b>${n}</b><span>${prog.variants[n].split}</span></button>`).join('')}</div>
+      ${prog.fixed ? `<p class="prog-intro muted">${v.why}</p>` : custom ? '' : `<div class="freq">${[3, 4, 5].map(n => `<button data-pfreq="${n}" aria-pressed="${n === freq}"><b>${n}</b><span>${prog.variants[n].split}</span></button>`).join('')}</div>
       <p class="prog-intro muted">${v.why}</p>`}
     </section>
     <section class="sec k-${kc}">
@@ -1699,6 +1810,7 @@ function viewPrograms() {
       ${v.days.map((d, i) => `<div class="card daycard"><h3>${esc(d.n)}<small>J${i + 1} · ${d.items.reduce((a, x) => a + x[1], 0)} séries</small></h3>
         <ul class="exlist">${d.items.map(([ex, s, r, rpe, o = {}]) => { const e = getEx(ex); return `<li><span>${esc(e.name)}${o.m ? `<span class="mtag ${o.m === 'top' ? 'top' : ''}">${METHODS[o.m].l}</span>` : ''}<br><span class="meta">${MUSCLES[e.mu].l}</span></span><span>${s} × ${r}</span></li>`; }).join('')}</ul></div>`).join('')}
       ${custom ? `<button class="btn ghost" data-gen-edit="${type.slice(6)}">Modifier ce programme</button>` : ''}
+      ${loadsTable(v.days, V.pweeks)}
       <details class="card"><summary>Les méthodes utilisées</summary><ul class="exlist" style="margin-top:8px">${Object.values(METHODS).map(m => `<li style="display:block"><b>${m.l}</b> — ${m.d}</li>`).join('')}</ul></details>
       ${periodCard(V.pweeks)}
     </section>
@@ -1737,8 +1849,8 @@ function goalRowHTML(g, i) {
 }
 function gPickHTML() {
   const G = V.gen, q = (G.gq || '').trim().toLowerCase();
-  const list = allEx().filter(e => !q || e.name.toLowerCase().includes(q) || MUSCLES[e.mu].l.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-  return list.map(e => `<div class="pick"><div class="grow"><div class="nm">${esc(e.name)}</div><div class="mu">${MUSCLES[e.mu].l} · ${EQUIP[e.eq]}</div></div><button class="add" data-gpick="${e.id}" aria-pressed="${G.exs.includes(e.id)}" aria-label="Choisir ${esc(e.name)}">${G.exs.includes(e.id) ? '✓' : '+'}</button></div>`).join('') || '<p class="empty">Aucun exercice trouvé.</p>';
+  const list = allEx().filter(e => !q || e.name.toLowerCase().includes(q) || MUSCLES[e.mu].l.toLowerCase().includes(q) || (e.opt.force && 'force'.includes(q))).sort((a, b) => (!!b.opt.force - !!a.opt.force) || a.name.localeCompare(b.name, 'fr'));
+  return list.map(e => `<div class="pick"><div class="grow"><div class="nm">${esc(e.name)}${e.opt && e.opt.force ? ' <span class="mtag force">Force</span>' : ''}</div><div class="mu">${MUSCLES[e.mu].l} · ${EQUIP[e.eq]}</div></div><button class="add" data-gpick="${e.id}" aria-pressed="${G.exs.includes(e.id)}" aria-label="Choisir ${esc(e.name)}">${G.exs.includes(e.id) ? '✓' : '+'}</button></div>`).join('') || '<p class="empty">Aucun exercice trouvé.</p>';
 }
 function viewGen() {
   if (!V.gen) V.gen = newGen();
@@ -1750,10 +1862,13 @@ function viewGen() {
       <p class="muted" style="margin:0;max-width:60ch">Tu donnes le cap, l’app répartit le travail sur la semaine : jours force, volume, point faible, et contrôle le volume par muscle. Tout reste modifiable avant d’enregistrer.</p></section>
     <section class="sec"><h2>1 · Objectifs</h2><div class="card">${G.goals.map(goalRowHTML).join('')}</div></section>
     <section class="sec"><h2>2 · Séances par semaine</h2>
-      <div class="freq k-perso">${[3, 4, 5].map(n => `<button data-gfreq="${n}" aria-pressed="${G.freq === n}"><b>${n}</b><span>${n === 3 ? 'Force, point faible, volume' : n === 4 ? 'Ajoute un jour de muscle' : 'Le plus de volume'}</span></button>`).join('')}</div></section>
+      <div class="freq k-perso">${[3, 4, 5].map(n => `<button data-gfreq="${n}" aria-pressed="${G.freq === n}"><b>${n}</b><span>${n === 3 ? 'Full body ou Push / Pull / Jambes' : n === 4 ? 'Haut / Bas ou Full body' : 'PPL + Haut / Bas'}</span></button>`).join('')}</div>
+      <div class="field"><span class="lbl">Organisation des séances</span>
+        <div class="chips wrapchips">${['auto', ...splitsFor(G.freq)].map(k => `<button class="chip-btn" data-gsplit="${k}" aria-pressed="${(G.split || 'auto') === k}">${k === 'auto' ? `Automatique · ${SPLITS[autoSplit(G.freq)].l}` : SPLITS[k].l}</button>`).join('')}</div>
+        <p class="meta" style="margin:0">${SPLITS[(G.split && G.split !== 'auto' && splitsFor(G.freq).includes(G.split)) ? G.split : autoSplit(G.freq)].d}</p></div></section>
     <section class="sec"><h2>3 · Exercices à inclure</h2>
       <p class="muted" style="margin:0;font-size:14px">Ceux que tu aimes ou que tu veux absolument : chacun sera placé au moins une fois par semaine. Le reste est complété par l’app.</p>
-      ${G.exs.length ? `<div class="goalchips">${G.exs.map(id => `<button class="chip-btn" data-gpick="${id}" aria-label="Retirer ${esc(getEx(id).name)}">${esc(getEx(id).name)} ✕</button>`).join('')}</div>` : ''}
+      <div id="gchips">${gChipsHTML()}</div>
       <div class="field"><label class="lbl" for="gq">Chercher</label><input id="gq" class="input" type="search" value="${esc(G.gq || '')}" placeholder="Ex. spoto, T-bar, curl" autocomplete="off"></div>
       <div class="pick-list" id="gpicklist" style="max-height:260px">${gPickHTML()}</div>
       ${customFormHTML('gx', 'data-gx-add', 'Créer et ajouter au programme', G.gq)}
@@ -1771,9 +1886,10 @@ function genPreviewHTML(P) {
     <div class="field"><span class="lbl">Durée conseillée</span><div class="seg wide">${[8, 12].map(n => `<button data-gweeks="${n}" aria-pressed="${(P.weeks || 8) === n}">${n} semaines · ${n / 4} blocs</button>`).join('')}</div></div>
     <div class="k-perso">${periodCard(P.weeks || 8)}</div>
     ${P.days.map((d, di) => `<div class="card daycard gday">
-      <h3><span>${di + 1} · ${esc(d.n)}</span><small>${ROLES[d.role] ? ROLES[d.role].l : ''} · ${d.items.reduce((a, x) => a + (+x[1] || 0), 0)} séries</small></h3>
+      <h3><span>${di + 1} · ${esc(d.n)}</span><small>${d.items.length} exos · ${d.items.reduce((a, x) => a + (+x[1] || 0), 0)} séries</small></h3>
+      <div class="patline">${d.items.map(it => `<span class="${offTheme(d, it[0]) ? 'off' : ''}">${PAT_LABEL[patternOf(it[0])]}</span>`).join('')}</div>
       ${d.items.map((it, ii) => { const e = getEx(it[0]), o = it[4] || {}; return `<div class="sel-item">
-        <div><b>${esc(e.name)}</b>${o.m ? `<span class="mtag">${METHODS[o.m].l}</span>` : ''}${P.exs.includes(it[0]) ? '<span class="mtag mine">choisi</span>' : ''}<div class="meta">${MUSCLES[e.mu].l}</div></div>
+        <div><b>${esc(e.name)}</b>${o.m ? `<span class="mtag">${METHODS[o.m].l}</span>` : ''}${P.exs.includes(it[0]) ? '<span class="mtag mine">choisi</span>' : ''}${offTheme(d, it[0]) ? '<span class="mtag warn">hors thème</span>' : ''}<div class="meta">${MUSCLES[e.mu].l} · ${PAT_LABEL[patternOf(it[0])]}</div></div>
         <div class="mini-btns"><button data-gmv="${di}:${ii}:-1" aria-label="Monter">↑</button><button data-gswap="${di}:${ii}" aria-label="Remplacer par un autre exercice du même muscle">⇄</button><button data-grm="${di}:${ii}" aria-label="Retirer">✕</button></div>
         <div class="ctl" style="grid-template-columns:repeat(2,minmax(0,1fr))"><label class="field"><span class="lbl">Séries</span><input data-gi="${di}:${ii}:1" inputmode="numeric" value="${it[1]}"></label>
         <label class="field"><span class="lbl">Reps</span><input data-gi="${di}:${ii}:2" value="${esc(it[2])}"></label></div></div>`; }).join('')}
@@ -1794,22 +1910,23 @@ function genAddSheet(di) {
     ${customFormHTML('ga', 'data-ga-add', 'Créer et ajouter à cette séance', '')}`);
 }
 function gAddListHTML() {
-  const q = (V.gAddQ || '').trim().toLowerCase();
-  return allEx().filter(e => !q || e.name.toLowerCase().includes(q) || MUSCLES[e.mu].l.toLowerCase().includes(q)).sort((a, b) => a.name.localeCompare(b.name, 'fr'))
-    .map(e => `<div class="pick"><div class="grow"><div class="nm">${esc(e.name)}</div><div class="mu">${MUSCLES[e.mu].l}</div></div><button class="add" data-gaddpick="${e.id}" aria-label="Ajouter ${esc(e.name)}">+</button></div>`).join('');
+  const q = (V.gAddQ || '').trim().toLowerCase(), day = V.gen.prog.days[V.gAddDay];
+  return allEx().filter(e => !q || e.name.toLowerCase().includes(q) || MUSCLES[e.mu].l.toLowerCase().includes(q))
+    .sort((a, b) => (offTheme(day, a.id) - offTheme(day, b.id)) || a.name.localeCompare(b.name, 'fr'))
+    .map(e => `<div class="pick"><div class="grow"><div class="nm">${esc(e.name)}${offTheme(day, e.id) ? ' <span class="mtag warn">hors thème</span>' : ''}</div><div class="mu">${MUSCLES[e.mu].l} · ${PAT_LABEL[patternOf(e.id)]}</div></div><button class="add" data-gaddpick="${e.id}" aria-label="Ajouter ${esc(e.name)}">+</button></div>`).join('');
 }
 
 /* ---------- NOUVELLE SÉANCE ---------- */
 function newDraft(date) { return {title: '', date: date || TODAY(), kind: 'libre', items: []}; }
 function pickListHTML(selected) {
   const q = V.q.trim().toLowerCase();
-  const list = allEx().filter(e => (!V.mf || e.mu === V.mf) && (!q || e.name.toLowerCase().includes(q) || MUSCLES[e.mu].l.toLowerCase().includes(q)))
-    .sort((a, b) => a.name.localeCompare(b.name, 'fr'));
-  return list.map(e => `<div class="pick"><div class="grow"><div class="nm">${esc(e.name)}${e.custom ? ' <span class="mtag">Perso</span>' : ''}</div><div class="mu">${MUSCLES[e.mu].l} · ${EQUIP[e.eq]}</div></div><button class="add" data-pick="${e.id}" aria-pressed="${selected.includes(e.id)}" aria-label="Ajouter ${esc(e.name)}">${selected.includes(e.id) ? '✓' : '+'}</button></div>`).join('') || '<p class="empty">Aucun exercice trouvé. Crée-le juste en dessous.</p>';
+  const list = allEx().filter(e => (!V.mf || (V.mf === 'force' ? e.opt.force : e.mu === V.mf)) && (!q || e.name.toLowerCase().includes(q) || MUSCLES[e.mu].l.toLowerCase().includes(q) || (e.opt.force && 'force'.includes(q))))
+    .sort((a, b) => (!!b.opt.force - !!a.opt.force) || a.name.localeCompare(b.name, 'fr'));
+  return list.map(e => `<div class="pick"><div class="grow"><div class="nm">${esc(e.name)}${e.opt && e.opt.force ? ' <span class="mtag force">Force</span>' : ''}${e.custom ? ' <span class="mtag">Perso</span>' : ''}</div><div class="mu">${MUSCLES[e.mu].l} · ${EQUIP[e.eq]}</div></div><button class="add" data-pick="${e.id}" aria-pressed="${selected.includes(e.id)}" aria-label="Ajouter ${esc(e.name)}">${selected.includes(e.id) ? '✓' : '+'}</button></div>`).join('') || '<p class="empty">Aucun exercice trouvé. Crée-le juste en dessous.</p>';
 }
 function pickerHTML(selected) {
   return `<div class="field"><label class="lbl" for="q">Chercher un exercice</label><input id="q" class="input" type="search" placeholder="Nom ou muscle" value="${esc(V.q)}" autocomplete="off"></div>
-    <div class="chips"><button class="chip-btn" data-mf="" aria-pressed="${!V.mf}">Tous</button>${Object.entries(MUSCLES).map(([k, m]) => `<button class="chip-btn" data-mf="${k}" aria-pressed="${V.mf === k}">${m.l}</button>`).join('')}</div>
+    <div class="chips"><button class="chip-btn" data-mf="" aria-pressed="${!V.mf}">Tous</button><button class="chip-btn" data-mf="force" aria-pressed="${V.mf === 'force'}">Force</button>${Object.entries(MUSCLES).map(([k, m]) => `<button class="chip-btn" data-mf="${k}" aria-pressed="${V.mf === k}">${m.l}</button>`).join('')}</div>
     <div class="pick-list" id="picklist">${pickListHTML(selected)}</div>
     <details class="card" ${V.openCustom ? 'open' : ''}><summary>Créer un exercice</summary>
       <div style="display:grid;gap:8px;margin-top:10px">
@@ -2081,7 +2198,7 @@ function viewLibrary() {
   $('#app').innerHTML = `
     <section class="hero"><div class="eyebrow">${allEx().length} exercices</div><h1>Bibliothèque</h1></section>
     <div class="field"><label class="lbl" for="lq">Chercher</label><input id="lq" class="input" type="search" value="${esc(V.lq)}" placeholder="Nom de l’exercice" autocomplete="off"></div>
-    <div class="chips" style="margin-top:8px"><button class="chip-btn" data-lmf="" aria-pressed="${!V.lmf}">Tous</button>${Object.entries(MUSCLES).map(([k, m]) => `<button class="chip-btn" data-lmf="${k}" aria-pressed="${V.lmf === k}">${m.l}</button>`).join('')}</div>
+    <div class="chips" style="margin-top:8px"><button class="chip-btn" data-lmf="" aria-pressed="${!V.lmf}">Tous</button><button class="chip-btn" data-lmf="force" aria-pressed="${V.lmf === 'force'}">Force</button>${Object.entries(MUSCLES).map(([k, m]) => `<button class="chip-btn" data-lmf="${k}" aria-pressed="${V.lmf === k}">${m.l}</button>`).join('')}</div>
     <div id="libgroups">${libGroupsHTML()}</div>
     <section class="sec"><h2>Créer un exercice</h2><div class="card">
       <div class="field"><label class="lbl" for="cx-name">Nom</label><input id="cx-name" class="input" placeholder="Ex. Rowing T-bar"></div>
@@ -2096,8 +2213,13 @@ function viewLibrary() {
 function libGroupsHTML() {
   const q = V.lq.trim().toLowerCase();
   const groups = {};
-  for (const e of allEx()) { if (V.lmf && e.mu !== V.lmf) continue; if (q && !e.name.toLowerCase().includes(q)) continue; (groups[e.mu] = groups[e.mu] || []).push(e); }
-  return `${Object.keys(MUSCLES).filter(m => groups[m]).map(m => `<section class="sec"><div class="row"><h2 class="grow">${MUSCLES[m].l}</h2><div style="width:64px">${bodySVG({[m]: 1}, ['fessiers', 'ischios', 'dorsaux', 'haut-dos', 'lombaires', 'triceps', 'delt-post'].includes(m) ? 'back' : 'front')}</div></div>
+  for (const e of allEx()) {
+    const g = e.opt.force ? 'force' : e.mu;
+    if (V.lmf && g !== V.lmf) continue; if (q && !e.name.toLowerCase().includes(q)) continue; (groups[g] = groups[g] || []).push(e);
+  }
+  const forceSec = groups.force ? `<section class="sec"><div class="row"><h2 class="grow">Force</h2><span class="lbl">Les 3 mouvements de force athlétique</span></div>
+      <div class="pick-list" style="max-height:none">${groups.force.sort((a, b) => ['bench', 'squat', 'deadlift'].indexOf(a.id) - ['bench', 'squat', 'deadlift'].indexOf(b.id)).map(e => `<div class="pick"><button class="grow pickbtn" data-exview="${e.id}"><div class="nm">${esc(e.name)}</div><div class="mu">${MUSCLES[e.mu].l} · ${EQUIP[e.eq]} · 1RM ${maxFor(e.id) ? fr(maxFor(e.id)) + ' kg' : 'à renseigner'}</div></button></div>`).join('')}</div></section>` : '';
+  return forceSec + `${Object.keys(MUSCLES).filter(m => groups[m]).map(m => `<section class="sec"><div class="row"><h2 class="grow">${MUSCLES[m].l}</h2><div style="width:64px">${bodySVG({[m]: 1}, ['fessiers', 'ischios', 'dorsaux', 'haut-dos', 'lombaires', 'triceps', 'delt-post'].includes(m) ? 'back' : 'front')}</div></div>
       <div class="pick-list" style="max-height:none">${groups[m].sort((a, b) => a.name.localeCompare(b.name, 'fr')).map(e => `<div class="pick"><button class="grow pickbtn" data-exview="${e.id}"><div class="nm">${esc(e.name)}${e.custom ? ' <span class="mtag">Perso</span>' : ''}</div><div class="mu">${EQUIP[e.eq]} · ${e.kind === 'poly' ? 'polyarticulaire' : 'isolation'}${e.sec.length ? ' · aussi : ' + e.sec.map(x => MUSCLES[x].l.toLowerCase()).join(', ') : ''}</div></button>${e.custom ? `<button class="btn sm danger" data-cx-rm="${e.id}">Suppr.</button>` : ''}</div>`).join('')}</div></section>`).join('') || '<p class="empty">Aucun résultat.</p>'}`;
 }
 
@@ -2252,6 +2374,34 @@ function customFormHTML(px, attr, label, name) {
     </div></details>`;
 }
 
+/* Charges prévues semaine par semaine pour les mouvements de force et leurs variations */
+function loadsTable(days, weeks) {
+  const rows = [], seen = new Set();
+  days.forEach((d, di) => d.items.forEach(([ex, sets, reps]) => {
+    const e = getEx(ex); if (!e.opt.ref) return;
+    const key = ex + '|' + reps; if (seen.has(key)) return; seen.add(key);
+    rows.push({ex, sets, reps, day: di + 1});
+  }));
+  if (!rows.length) return '';
+  const sch = scheduleOf(weeks);
+  const missing = [...new Set(rows.map(r => getEx(r.ex).opt.ref))].filter(ref => !maxFor(ref));
+  const body = rows.map(r => {
+    const cells = sch.map((w, i) => {
+      const t = targetLoad({ex: r.ex, reps: r.reps, rpe: w.deload ? DELOAD.rpe : w.rpe, deload: w.deload});
+      return `<td class="${w.deload ? 'dl' : ''}">${t && t.kg ? fr(t.kg, 2) : '—'}</td>`;
+    }).join('');
+    return `<tr><th scope="row"><b>${esc(getEx(r.ex).name)}</b><span>J${r.day} · ${r.sets} × ${esc(r.reps)}</span></th>${cells}</tr>`;
+  }).join('');
+  return `<div class="card"><h3>Charges prévues (kg)</h3>
+    <div class="tablewrap"><table class="loads"><thead><tr><th></th>${sch.map((w, i) => `<th class="${w.deload ? 'dl' : ''}">S${i + 1}<small>${w.deload ? '60 %' : 'RPE ' + fr(w.rpe)}</small></th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div>
+    <p class="meta" style="margin:0">${missing.length ? `Il manque ton 1RM au ${missing.map(m => getEx(m).name).join(', ')} : renseigne-le dans <b>Objectifs → Mes max</b> pour voir les charges. ` : ''}Calculées depuis tes 1RM (Objectifs → Mes max) ou tes dernières séances, puis recalculées chaque semaine selon ce que tu fais vraiment.</p></div>`;
+}
+
+function gChipsHTML() {
+  const G = V.gen;
+  return G.exs.length ? `<div class="goalchips">${G.exs.map(id => `<button class="chip-btn" data-gpick="${id}" aria-label="Retirer ${esc(getEx(id).name)}">${esc(getEx(id).name)} ✕</button>`).join('')}</div>` : '';
+}
+
 /* ================= MINUTEUR, MÉTRONOME, ÉCRAN ================= */
 let timer = null, wakeLock = null, audio = null;
 const tempo = {on: false, ecc: 4, reps: 0, last: null, t0: 0};
@@ -2373,7 +2523,7 @@ document.addEventListener('click', ev => {
   if ('export' in d) return doExport();
   // générateur de programme
   if ('genNew' in d) { V.gen = newGen(); return go('gen'); }
-  if (d.genEdit) { const m = myPrograms().find(x => x.id === d.genEdit); if (!m) return; V.gen = {goals: [0, 1, 2].map(i => Object.assign({t: '', ex: 'bench', w: 'bas', mu: 'pecs'}, m.goals[i] || {})), exs: m.exs.slice(), freq: m.freq, seed: m.seed || 1, name: m.name, editId: m.id, prog: JSON.parse(JSON.stringify(m)), gq: ''}; return go('gen'); }
+  if (d.genEdit) { const m = myPrograms().find(x => x.id === d.genEdit); if (!m) return; V.gen = {goals: [0, 1, 2].map(i => Object.assign({t: '', ex: 'bench', w: 'bas', mu: 'pecs'}, m.goals[i] || {})), exs: m.exs.slice(), freq: m.freq, split: m.split || 'auto', seed: m.seed || 1, name: m.name, editId: m.id, prog: JSON.parse(JSON.stringify(m)), gq: ''}; return go('gen'); }
   if (d.genDel) {
     const p = DB.config.plan; if (p && p.type === 'perso:' + d.genDel) { toast('Ce programme est en cours : annule-le d’abord (en haut de la page).'); return; }
     if (!d.armed) { t.dataset.armed = '1'; t.textContent = 'Toucher encore pour supprimer'; setTimeout(() => { if (t.isConnected) { delete t.dataset.armed; t.textContent = 'Supprimer'; } }, 3000); return; }
@@ -2383,20 +2533,30 @@ document.addEventListener('click', ev => {
   if ('gaAdd' in d) { const id = addCustom('ga'); if (!id) return; const e = getEx(id); V.gen.prog.days[V.gAddDay].items.push([id, 3, e.kind === 'poly' ? '8-10' : '12-15', 8, {}]); if (!V.gen.prog.exs.includes(id)) V.gen.prog.exs.push(id); closePlayer(); const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
   if (d.gweeks) { V.gen.prog.weeks = +d.gweeks; V.gen.weeks = +d.gweeks; const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
   if (d.pweeks) { V.pweeks = +d.pweeks; const y = window.scrollY; viewPrograms(); window.scrollTo(0, y); return; }
-  if (d.gfreq) { V.gen.freq = +d.gfreq; const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
-  if (d.gpick) { const G = V.gen, i = G.exs.indexOf(d.gpick); if (i >= 0) G.exs.splice(i, 1); else G.exs.push(d.gpick); const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
+  if (d.gsplit) { V.gen.split = d.gsplit; const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
+  if (d.gfreq) { V.gen.freq = +d.gfreq; if (V.gen.split && V.gen.split !== 'auto' && !splitsFor(V.gen.freq).includes(V.gen.split)) V.gen.split = 'auto'; const y = window.scrollY; viewGen(); window.scrollTo(0, y); return; }
+  if (d.gpick) {
+    const G = V.gen, i = G.exs.indexOf(d.gpick); if (i >= 0) G.exs.splice(i, 1); else G.exs.push(d.gpick);
+    const on = G.exs.includes(d.gpick);
+    document.querySelectorAll(`#gpicklist [data-gpick="${d.gpick}"]`).forEach(b => { b.setAttribute('aria-pressed', on); b.textContent = on ? '✓' : '+'; });
+    $('#gchips').innerHTML = gChipsHTML();
+    const go = document.querySelector('[data-gen-go]'); if (go) go.disabled = !G.goals.some(g => g.t);
+    toast(on ? `${getEx(d.gpick).name} ajouté` : `${getEx(d.gpick).name} retiré`); return;
+  }
   if ('genGo' in d || 'genRegen' in d) {
     const G = V.gen; if ('genRegen' in d) G.seed = (G.seed || 1) + 1;
     const goals = G.goals.filter(g => g.t).map(g => g.t === 'pr' ? {t: 'pr', ex: g.ex} : g.t === 'weak' ? {t: 'weak', ex: g.ex, w: g.w || 'bas'} : g.t === 'hyper' ? {t: 'hyper', mu: g.mu} : {t: g.t});
     const keepName = G.prog && G.prog.name && G.name && G.prog.name === G.name;
-    G.prog = genProgram({goals, exs: G.exs, freq: G.freq, weeks: G.weeks || (G.prog && G.prog.weeks) || 8, seed: G.seed, id: G.editId, name: keepName ? G.name : (G.editId ? G.name : ''), created: G.prog && G.prog.created});
+    G.prog = genProgram({goals, exs: G.exs, freq: G.freq, split: G.split && G.split !== 'auto' ? G.split : null, weeks: G.weeks || (G.prog && G.prog.weeks) || 8, seed: G.seed, id: G.editId, name: keepName ? G.name : (G.editId ? G.name : ''), created: G.prog && G.prog.created});
     G.name = G.prog.name;
     viewGen(); const el = $('#genpreview'); if (el) el.scrollIntoView({behavior: 'smooth', block: 'start'}); return;
   }
   if (d.gswap) {
     const [di, ii] = d.gswap.split(':').map(Number), day = V.gen.prog.days[di], it = day.items[ii], e = getEx(it[0]);
-    const alts = allEx().filter(x => x.mu === e.mu && x.id !== it[0] && !day.items.some(y => y[0] === x.id));
-    if (!alts.length) { toast(`Pas d’autre exercice pour ${MUSCLES[e.mu].l.toLowerCase()} dans la bibliothèque`); return; }
+    const pat = patternOf(it[0]);
+    let alts = allEx().filter(x => patternOf(x.id) === pat && x.id !== it[0] && !day.items.some(y => y[0] === x.id));
+    if (!alts.length) alts = allEx().filter(x => x.mu === e.mu && x.id !== it[0] && !day.items.some(y => y[0] === x.id));
+    if (!alts.length) { toast(`Pas d’autre exercice de la même famille (${PAT_LABEL[pat]}) dans la bibliothèque`); return; }
     V.gen.swapI = ((V.gen.swapI || 0) + 1); const n = alts[V.gen.swapI % alts.length];
     it[0] = n.id; if (it[4]) { delete it[4].pct; } const y = window.scrollY; viewGen(); window.scrollTo(0, y); toast(`${e.name} → ${n.name}`); return;
   }
@@ -2482,7 +2642,7 @@ document.addEventListener('click', ev => {
     if (i >= 0) D.items.splice(i, 1);
     else { const e = getEx(d.pick); D.items.push({ex: d.pick, sets: 3, reps: e.kind === 'poly' ? '6-10' : '10-15', rpe: 8, m: null}); }
     if (V.addTo) { const n = D.items.length; t.setAttribute('aria-pressed', i < 0); t.textContent = i < 0 ? '✓' : '+'; const b = $('[data-add-confirm]'); b.disabled = !n; b.textContent = `Ajouter ${n || ''} exercice${n > 1 ? 's' : ''}`; return; }
-    const y = window.scrollY; viewNew(); window.scrollTo(0, y); toast(i >= 0 ? 'Retiré' : `${getEx(d.pick).name} ajouté`); return;
+    const y = window.scrollY, ly = $('#picklist') ? $('#picklist').scrollTop : 0; viewNew(); window.scrollTo(0, y); if ($('#picklist')) $('#picklist').scrollTop = ly; toast(i >= 0 ? 'Retiré' : `${getEx(d.pick).name} ajouté`); return;
   }
   if (d.mv) { const [i, dir] = d.mv.split(':').map(Number), a = V.draft.items, j = i + dir; if (j < 0 || j >= a.length) return; [a[i], a[j]] = [a[j], a[i]]; const y = window.scrollY; viewNew(); window.scrollTo(0, y); return; }
   if (d.rm) { V.draft.items.splice(+d.rm, 1); const y = window.scrollY; viewNew(); window.scrollTo(0, y); return; }
